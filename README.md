@@ -1,2 +1,2 @@
-# dicom-segmentation
-Segmentation of medical images with Watersheed.
+# DICOM Segmentation
+Segmentation of medical images with Watersheed Method using Python.
