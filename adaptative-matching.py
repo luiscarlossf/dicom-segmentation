@@ -40,11 +40,17 @@ slice = choice(volume)
 
 #- Encontrar a marcação do especialista, encontrar o centro da massa dessa marcação
 marking = dicomparser.DicomParser("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001/11-16-2003-RTRCCTTHORAX8FLow Adult-39664/1-.simplified-62948/000000.dcm")
-contour = np.array(marking.GetStructureCoordinates(1)[str(slice.SliceLocation)+".00"][0]['data'])
-rows = ((contour[:, 1] - slice.ImagePositionPatient[1])/slice.PixelSpacing[1]).astype('int')
-columns = ((contour[:, 0] - slice.ImagePositionPatient[0])/slice.PixelSpacing[0]).astype('int')
+try:
+    contour = np.array(marking.GetStructureCoordinates(1)[str(slice.SliceLocation)+".00"][0]['data'])
+except KeyError:
+    contour = np.array(marking.GetStructureCoordinates(1)[str(slice.SliceLocation) + ".00"][0]['data'])
+
+rows = ((contour[:, 1] - slice.ImagePositionPatient[1])/slice.PixelSpacing[1]).astype(int)
+columns = ((contour[:, 0] - slice.ImagePositionPatient[0])/slice.PixelSpacing[0]).astype(int)
 pixels = np.copy(slice.pixel_array)
-pixels[rows, columns] = 65535
+center_x = int(((rows.max() - rows.min())/2) + rows.min())
+center_y = int(((columns.max() - columns.min())/2) + columns.min())
+pixels[center_x, center_y] = 65535
 
 show(pixels)
 
