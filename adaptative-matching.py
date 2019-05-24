@@ -33,34 +33,20 @@ def load_files(path):
             volumes.append(pydicom.dcmread(root + '/'+ file))
     return volumes
 ###########Suponha que o volume tenha sido selecionado aleatoriamente
-volume = load_files("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001")
-
-marking = dicomparser.DicomParser("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001/11-16-2003-RTRCCTTHORAX8FLow Adult-39664/1-.simplified-62948/000000.dcm")
-index_slice = 75
-markings = pydicom.dcmread("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001/11-16-2003-RTRCCTTHORAX8FLow Adult-39664/1-.simplified-62948/000000.dcm")
-contoursequence = markings.ROIContourSequence[0].ContourSequence
-print(markings.ROIContourSequence[0].ReferencedROINumber)
-print(contoursequence[index_slice].ContourImageSequence)
-contour = contoursequence[index_slice].ContourData
-contour = np.array(contour).reshape(contoursequence[index_slice].NumberOfContourPoints, 3)
 #Gerando o template padrão
 #- Seleciona aleatoriamente um volume dentre todos os outros do banco de dados.
-slice = None
+volume = load_files("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001")
+slice = choice(volume)
 
-for index, i in enumerate(volume):
-    if i.SOPInstanceUID == contoursequence[index_slice].ContourImageSequence[0].ReferencedSOPInstanceUID:
-        print("Index: ", index)
-        slice = i
-print(slice.SOPInstanceUID)
-print(slice.ImagePositionPatient[0])
+#- Encontrar a marcação do especialista, encontrar o centro da massa dessa marcação
+marking = dicomparser.DicomParser("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001/11-16-2003-RTRCCTTHORAX8FLow Adult-39664/1-.simplified-62948/000000.dcm")
+contour = np.array(marking.GetStructureCoordinates(1)[str(slice.SliceLocation)+".00"][0]['data'])
 rows = ((contour[:, 1] - slice.ImagePositionPatient[1])/slice.PixelSpacing[1]).astype('int')
 columns = ((contour[:, 0] - slice.ImagePositionPatient[0])/slice.PixelSpacing[0]).astype('int')
 pixels = np.copy(slice.pixel_array)
 pixels[rows, columns] = 65535
 
 show(pixels)
-
-#- Encontrar a marcação do especialista, encontrar o centro da massa dessa marcação
 
 #- Recortar duas vezes o tamanho da região correspondente de todos os lados.
 
