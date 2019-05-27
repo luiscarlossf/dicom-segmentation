@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pydicom
 from random import choice
+from skimage.feature import match_template
 from skimage.exposure import rescale_intensity
 from dicompylercore import dicomparser
 #ADAPTIVE TEMPLATE MATCHING
@@ -14,6 +15,7 @@ def show(pixel_array):
     :param pixel_array: numpy array com os pixels da imagem.
     :return:
     """
+    print("Show was called.")
     cv2.imshow('image',pixel_array)
     k = cv2.waitKey(0)
     if k == 27:         # wait for ESC key to exit
@@ -40,21 +42,26 @@ slice = choice(volume)
 
 #- Encontrar a marcação do especialista, encontrar o centro da massa dessa marcação
 marking = dicomparser.DicomParser("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001/11-16-2003-RTRCCTTHORAX8FLow Adult-39664/1-.simplified-62948/000000.dcm")
-try:
-    contour = np.array(marking.GetStructureCoordinates(1)[str(slice.SliceLocation)+".00"][0]['data'])
-except KeyError:
-    contour = np.array(marking.GetStructureCoordinates(1)[str(slice.SliceLocation) + ".00"][0]['data'])
+contour = np.array(marking.GetStructureCoordinates(1)[str(slice.SliceLocation) + ".00"][0]['data'])
 
 rows = ((contour[:, 1] - slice.ImagePositionPatient[1])/slice.PixelSpacing[1]).astype(int)
 columns = ((contour[:, 0] - slice.ImagePositionPatient[0])/slice.PixelSpacing[0]).astype(int)
 pixels = np.copy(slice.pixel_array)
-center_x = int(((rows.max() - rows.min())/2) + rows.min())
-center_y = int(((columns.max() - columns.min())/2) + columns.min())
+diameter_x = rows.max() - rows.min()
+diameter_y = columns.max() - columns.min()
+center_x = int(diameter_x//2 + rows.min())
+center_y = int(diameter_y//2 + columns.min())
 pixels[center_x, center_y] = 65535
 
-show(pixels)
+
 
 #- Recortar duas vezes o tamanho da região correspondente de todos os lados.
+#_slice = dicomparser.DicomParser(slice)
+#a = _slice.GetImage()
+#pixels = np.array(a)
+clipping = pixels[rows.min() - (2*diameter_y): rows.max() + (2*diameter_y), columns.min() - (2*diameter_x):columns.max() + (2*diameter_x)]
+
+show(clipping)
 
 #Gerando o template inicial
 #- O algoritmo Template Matching é executado em cada slice do volume, onde o template é o
