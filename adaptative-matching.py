@@ -29,20 +29,55 @@ def load_files(path):
                  dos arquivos que se deseja carregar
     :return volume: numpy array com os arquivos dicom
     """
-    volumes = list()
+    volume = None
+
     for root, dirs, files in os.walk(path):
-        for file in files:
-            volumes.append(pydicom.dcmread(root + '/'+ file))
+        volume = [pydicom.dcmread(root + '/'+ file) for file in files]
+
+    return volume
+
+def load_volumes(path):
+    """
+    Gera uma lista com os paths dos volumes no path
+
+    :param path: path onde os volumes estão armazenados
+    :return volumes: paths dos volumes encontrados
+    """
+    volumes = None
+
+    for root, dirs, files in os.walk(path):
+        volumes = [root+'/'+dir for dir in dirs]
+        break
+
     return volumes
+
+def choice_volume(path):
+    """
+    Seleciona aleatoriamente um volume do path
+    :param path: path onde os volumes estão armazenado
+    :return volume: volume seleciona aleatoriamente
+    """
+    path_volume = None
+    volume = None
+
+    for root, dirs, files in os.walk(path):
+        path_volume = root+'/'+choice(dirs)
+        break
+    for root, dirs, files in os.walk(path_volume):
+        volume = [pydicom.dcmread(root + '/' + file) for file in files]
+        break
+
+    return volume
+
 ###########Suponha que o volume tenha sido selecionado aleatoriamente
 #Gerando o template padrão
 #- Seleciona aleatoriamente um volume dentre todos os outros do banco de dados.
-volume = load_files("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001")
+volume = choice_volume("C:/Users/luisc/Documents/dicom-database/LCTSC/Train")
 slice = choice(volume)
 
 #- Encontrar a marcação do especialista, encontrar o centro da massa dessa marcação
-marking = dicomparser.DicomParser("C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Train-S1-001/11-16-2003-RTRCCTTHORAX8FLow Adult-39664/1-.simplified-62948/000000.dcm")
-contour = np.array(marking.GetStructureCoordinates(1)[str(slice.SliceLocation) + ".00"][0]['data'])
+marking = dicomparser.DicomParser("C:/Users/luisc/Documents/dicom-database/LCTSC/Train/LCTSC-Train-S1-001/11-16-2003-RTRCCTTHORAX8FLow Adult-39664/1-.simplified-62948/000000.dcm")
+contour = np.array(marking.GetStructureCoordinates(1)[str(slice.ImagePositionPatient[2]) + ".00"][0]['data'])
 
 rows = ((contour[:, 1] - slice.ImagePositionPatient[1])/slice.PixelSpacing[1]).astype(int)
 columns = ((contour[:, 0] - slice.ImagePositionPatient[0])/slice.PixelSpacing[0]).astype(int)
@@ -51,21 +86,18 @@ diameter_x = rows.max() - rows.min()
 diameter_y = columns.max() - columns.min()
 center_x = int(diameter_x//2 + rows.min())
 center_y = int(diameter_y//2 + columns.min())
-pixels[center_x, center_y] = 65535
+#pixels[center_x, center_y] = 65535
 
 
 
 #- Recortar duas vezes o tamanho da região correspondente de todos os lados.
-#_slice = dicomparser.DicomParser(slice)
-#a = _slice.GetImage()
-#pixels = np.array(a)
-clipping = pixels[rows.min() - (2*diameter_y): rows.max() + (2*diameter_y), columns.min() - (2*diameter_x):columns.max() + (2*diameter_x)]
-
-show(clipping)
+standard_template = pixels[rows.min() - (2*diameter_y): rows.max() + (2*diameter_y), columns.min() - (2*diameter_x):columns.max() + (2*diameter_x)]
 
 #Gerando o template inicial
 #- O algoritmo Template Matching é executado em cada slice do volume, onde o template é o
 #template padrão definido anteriormente;
+
+results = [cv2.minMaxLoc(cv2.matchTemplate(ds.pixel_array, standard_template, cv2.TM_CCORR_NORMED)) for ds in volume if ds.Modality == 'CT']
 
 #- Calcular a similaridade em cada slice;
 
