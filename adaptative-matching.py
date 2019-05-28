@@ -3,10 +3,11 @@ import numpy as np
 import os
 import pydicom
 from random import choice
-from skimage.feature import match_template
-from skimage.exposure import rescale_intensity
 from dicompylercore import dicomparser
-#ADAPTIVE TEMPLATE MATCHING
+"""
+ADAPTIVE TEMPLATE MATCHING
+"""
+
 
 def show(pixel_array):
     """
@@ -16,12 +17,13 @@ def show(pixel_array):
     :return:
     """
     print("Show was called.")
-    cv2.imshow('image',pixel_array)
+    cv2.imshow('image', pixel_array)
     k = cv2.waitKey(0)
     if k == 27:         # wait for ESC key to exit
         cv2.destroyAllWindows()
 
-def load_files(path):
+
+def load_datasets(path):
     """
     Carrega todos os arquivos DICOM de um diretório.
 
@@ -29,12 +31,15 @@ def load_files(path):
                  dos arquivos que se deseja carregar
     :return volume: numpy array com os arquivos dicom
     """
-    volume = None
+    volume = list()
 
     for root, dirs, files in os.walk(path):
-        volume = [pydicom.dcmread(root + '/'+ file) for file in files]
-
+        for file in files:
+            ds = pydicom.dcmread(root + '/'+ file)
+            if ds.Modality == 'CT':
+                volume.append(ds)
     return volume
+
 
 def load_volumes(path):
     """
@@ -46,58 +51,107 @@ def load_volumes(path):
     volumes = None
 
     for root, dirs, files in os.walk(path):
-        volumes = [root+'/'+dir for dir in dirs]
+        for file in files:
+            volumes.append(pydicom.dcmread(root + '/' + file))
         break
 
     return volumes
+
 
 def choice_volume(path):
     """
     Seleciona aleatoriamente um volume do path
     :param path: path onde os volumes estão armazenado
-    :return volume: volume seleciona aleatoriamente
+    :return volume: lista com rtstruct dataset e lista de CT datasets
     """
     path_volume = None
-    volume = None
+    ds = list()
+    marks = None
 
     for root, dirs, files in os.walk(path):
-        path_volume = root+'/'+choice(dirs)
+        path_volume = root+choice(dirs)
+        print(path_volume)
         break
     for root, dirs, files in os.walk(path_volume):
-        volume = [pydicom.dcmread(root + '/' + file) for file in files]
-        break
+        for file in files:
+            dataset = pydicom.dcmread(root + '/' + file)
+            if dataset.Modality == 'CT':
+                ds.append(dataset)
+            else:
+                print(dataset.Modality)
+                marks = dataset
+
+    volume = [marks, ds]
 
     return volume
 
+
+def getImage(slice):
+    ds = dicomparser.DicomParser(slice)
+    intercept, slope = ds.GetRescaleInterceptSlope()
+    rescaled_image = slice.pixel_array * slope + intercept
+    window, level = ds.GetDefaultImageWindowLevel()
+    pixels_slice = ds.GetLUTValue(rescaled_image, window, level)
+
+    return pixels_slice
+
+def getTemplate():
+    pass
+
+standard_path = "C:/Users/luisc/Documents/dicom-database/LCTSC/Train/"
 ###########Suponha que o volume tenha sido selecionado aleatoriamente
 #Gerando o template padrão
 #- Seleciona aleatoriamente um volume dentre todos os outros do banco de dados.
-volume = choice_volume("C:/Users/luisc/Documents/dicom-database/LCTSC/Train")
-slice = choice(volume)
 
+volume = choice_volume(standard_path)
+slice = choice(volume[1])
 #- Encontrar a marcação do especialista, encontrar o centro da massa dessa marcação
-marking = dicomparser.DicomParser("C:/Users/luisc/Documents/dicom-database/LCTSC/Train/LCTSC-Train-S1-001/11-16-2003-RTRCCTTHORAX8FLow Adult-39664/1-.simplified-62948/000000.dcm")
-contour = np.array(marking.GetStructureCoordinates(1)[str(slice.ImagePositionPatient[2]) + ".00"][0]['data'])
+marking = dicomparser.DicomParser(volume[0])
+structures = marking.GetStructures()
+number_roi = None
+for i in structures:
+    if structures[i]['name'] == 'SpinalCord':
+        number_roi = structures[i]['id']
+
+
+while True:
+    try:
+        contour = np.array(marking.GetStructureCoordinates(number_roi)['{0:.2f}'.format(slice.ImagePositionPatient[2])][0]['data'])
+        break
+    except KeyError:
+        slice = choice(volume[1])
 
 rows = ((contour[:, 1] - slice.ImagePositionPatient[1])/slice.PixelSpacing[1]).astype(int)
 columns = ((contour[:, 0] - slice.ImagePositionPatient[0])/slice.PixelSpacing[0]).astype(int)
-pixels = np.copy(slice.pixel_array)
+#Conseguindo LUT Values
+
+pixels_slice = getImage(slice)
+
 diameter_x = rows.max() - rows.min()
 diameter_y = columns.max() - columns.min()
 center_x = int(diameter_x//2 + rows.min())
 center_y = int(diameter_y//2 + columns.min())
-#pixels[center_x, center_y] = 65535
-
+show(pixels_slice)
 
 
 #- Recortar duas vezes o tamanho da região correspondente de todos os lados.
-standard_template = pixels[rows.min() - (2*diameter_y): rows.max() + (2*diameter_y), columns.min() - (2*diameter_x):columns.max() + (2*diameter_x)]
+print("[{0}:{1}, {2}:{3}]".format(rows.min() - (2*diameter_x), rows.max() + (2*diameter_x), columns.min() - (2*diameter_y),columns.max() + (2*diameter_y)))
+standard_template = pixels_slice[rows.min() - (2*diameter_x): rows.max() + (2*diameter_x), columns.min() - (2*diameter_y):columns.max() + (2*diameter_y)]
 
+show(standard_template)
 #Gerando o template inicial
 #- O algoritmo Template Matching é executado em cada slice do volume, onde o template é o
 #template padrão definido anteriormente;
 
-results = [cv2.minMaxLoc(cv2.matchTemplate(ds.pixel_array, standard_template, cv2.TM_CCORR_NORMED)) for ds in volume if ds.Modality == 'CT']
+path_volumes = load_volumes(standard_path)
+results = list()
+for path_volume in path_volumes:
+    datasets = load_datasets(path_volume)
+    maxs = [cv2.minMaxLoc(cv2.matchTemplate(getImage(ds), standard_template, cv2.TM_CCORR_NORMED)) for ds in datasets]
+    maximo = max(maxs[:][1])
+    indice = maxs[:][1].index(maximo)
+
+
 
 #- Calcular a similaridade em cada slice;
 
