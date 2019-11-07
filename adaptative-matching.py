@@ -298,6 +298,7 @@ def get_bounding_boxes(image, width, height):
         bottom = x - height//2
         right = y + width//2
         left = y - width//2
+        print(image[bottom:top, left:right].shape)
         bboxes.append(image[bottom:top, left:right])
     return bboxes
 
@@ -320,6 +321,5 @@ results2 = getAdaptativeTemplates(results)
 
 getCandidatesSegmentation("./outputs/adaptative_templates")
 """
-imag = cv2.imread("./outputs/adaptative_templates/100.png")
-print(imag.shape)
+imag = cv2.imread("./outputs/adaptative_templates/100.png", 0)
 get_bounding_boxes(imag, 30, 30)
