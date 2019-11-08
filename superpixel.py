@@ -3,8 +3,9 @@ import os
 from dicompylercore import dicomparser
 import pydicom
 import numpy as np
+from skimage.measure import regionprops
 
-path = "C:/Users/Luis Carlos/Documents/LCTSC/LCTSC-Test-S1-101"
+path = "C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Test-S1-101"
 
 def show(pixel_array):
     """
@@ -57,7 +58,22 @@ def get_image(slice):
 
     return pixels_slice
 
-def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=None):
+def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=0.075):
+    image_ = np.copy(image)
+    s = cv2.ximgproc.createSuperpixelLSC(image, region_size, compactness)
+    print("Foram gerados {0} superpixels.".format(s.getNumberOfSuperpixels))
+    s.iterate()
+    s.enforceLabelConnectivity(10)
+    labels = s.getLabels()
+    props = regionprops(labels)
+    for i in props[1100]['coords']:
+        image_[i[1], i[0]]=255
+    print("{0} labels retornados.".format(len(props)))
+    masks = s.getLabelContourMask()
+    image_[masks == 255] = 255
+    show(image_)
+
+    """
     image_ = np.copy(image)
     s_slic = cv2.ximgproc.createSuperpixelSLIC(image, cv2.ximgproc.SLIC, region_size, smooth)
     #s_slic.enforceLabelConnectivity()
@@ -93,6 +109,7 @@ def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=Non
     masks = s_slic.getLabelContourMask()
     image_[masks == 255] = 255
     cv2.imwrite("./outputs/seeds-{0}-{1}-{2}-{3}-{4}.png".format(image.shape[0], image.shape[1], 1, 10000, 2), image_)
+    """
 
 def dice():
     k = 1
@@ -107,7 +124,6 @@ def dice():
     print('Dice similarity score is {}'.format(dice))
 
 if __name__ == "__main__":
-    #dataset = load_datasets(path)
-    #get_superpixel(get_image(dataset[50]),region_size=10, smooth=10., num_iteration=20)
-    #print(dataset[0].Modality)
-    dice()
+    dataset = load_datasets(path)
+    print("{0} aquisições carregadas no dataset!".format(len(dataset)-1))
+    get_superpixel(get_image(dataset[50]),region_size=10, smooth=10., num_iteration=20, compactness=0.075)
