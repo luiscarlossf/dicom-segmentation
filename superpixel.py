@@ -4,6 +4,7 @@ from dicompylercore import dicomparser
 import pydicom
 import numpy as np
 from skimage.measure import regionprops
+import time
 
 path = "C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Test-S1-101"
 
@@ -19,7 +20,6 @@ def show(pixel_array):
     k = cv2.waitKey(0)
     if k == 27:         # wait for ESC key to exit
         cv2.destroyAllWindows()
-
 
 def load_datasets(path):
     """
@@ -58,13 +58,87 @@ def get_image(slice):
 
     return pixels_slice
 
+def get_datamark(datasets, roi):
+    """
+    Retorna apenas os datasets que contenham marcações
+    para região de interesse (ROI)
+
+    :param datasets: list()
+    :param roi: str()
+    :return datasets: list()
+    """
+    marking = dicomparser.DicomParser(datasets[0])
+    structures = marking.GetStructures()
+    roi_number = None
+    for i in structures:
+        if roi in structures[i]['name']:
+            roi_number = structures[i]['id']
+    if roi_number == None:
+        raise NameError(roi + " não está entre as estruturas marcadas")
+    marked_slices = marking.GetStructureCoordinates(roi_number)
+
+    return [ i for i in datasets[1:] if str(round(i.ImagePositionPatient[2], 2)) + '0' in marked_slices ]
+
+def get_mark(dataset, position, spacing, roi):
+    """
+    Retorna a marcação de uma região de interesse (ROI) dado um dataset DICOM
+    na modalidade RTSTRUCT
+
+    :param dataset: Dataset da modalidade RTSTRUCT 
+    :param position: tuple() com coordenadas x,y,z do canto superior esquerdo
+                     da imagem
+    :param spacing: tuple() com a distância física no paciente entre o centro de cada pixel, 
+                    especificado por um par numérico - espaçamento de linhas adjacentes 
+                    (delimitador) espaçamento de colunas adjacentes em mm.
+    :param roi: str() representando o nome da região de interesse que se deseja obter a marcação
+
+    :return coordinates: list() com indices das marcação na imagem.
+    """
+    marking = dicomparser.DicomParser(dataset)
+    structures = marking.GetStructures()
+    roi_number = None
+    for i in structures:
+        if roi in structures[i]['name']:
+            roi_number = structures[i]['id']
+    if roi_number == None:
+        raise NameError(roi + " não está entre as estruturas marcadas")
+    
+    coordinates = list()
+    for mark in marking.GetStructureCoordinates(roi_number)[str(round(position[2], 2)) + '0']:
+        contour = np.array(mark['data'])
+        rows = ((contour[:, 1] - position[1])/spacing[1]).astype(int)
+        columns = ((contour[:, 0] - position[0])/spacing[0]).astype(int)
+        coordinates.append([rows, columns])
+    
+    return coordinates
+
+def kmeans():
+    pass
+
 def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=0.075):
+    start = time.time()
     image_ = np.copy(image)
     s = cv2.ximgproc.createSuperpixelLSC(image, region_size, compactness)
     print("Foram gerados {0} superpixels.".format(s.getNumberOfSuperpixels))
     s.iterate()
     s.enforceLabelConnectivity(10)
+    seconds = time.time() - start 
+    print("Levou {0} segundos para gerar superpixels".format(seconds))
+
     labels = s.getLabels()
+    start = time.time()
+    coordinates = dict()
+    for i in np.arange(512):
+        for j in np.arange(512):
+            try:
+                coordinates[labels[i, j]].append((i,j))
+            except KeyError:
+                coordinates[labels[i, j]] = list()
+    seconds = time.time() - start        
+    print("Levou {0} segundos para retornar os labels".format(seconds))
+    print("Média da cor do superpixel é {0} ".format(np.mean(image_[coordinates[i]])))
+
+    """
     props = regionprops(labels)
     for i in props[1100]['coords']:
         image_[i[1], i[0]]=255
@@ -73,7 +147,6 @@ def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=0.0
     image_[masks == 255] = 255
     show(image_)
 
-    """
     image_ = np.copy(image)
     s_slic = cv2.ximgproc.createSuperpixelSLIC(image, cv2.ximgproc.SLIC, region_size, smooth)
     #s_slic.enforceLabelConnectivity()
@@ -125,5 +198,16 @@ def dice():
 
 if __name__ == "__main__":
     dataset = load_datasets(path)
-    print("{0} aquisições carregadas no dataset!".format(len(dataset)-1))
-    get_superpixel(get_image(dataset[50]),region_size=10, smooth=10., num_iteration=20, compactness=0.075)
+    roi = "Heart"
+    print("{0} aquisições carregadas no dataset!".format(len(dataset)))
+    mark_data = get_datamark(datasets=dataset, roi=roi)
+    media = 0
+    for i in mark_data:
+        coordinates = get_mark(dataset[0], position=i.ImagePositionPatient,spacing=i.PixelSpacing, roi=roi)
+        image = get_image(i)
+        mean_image = 0
+        for c in coordinates:
+            mean_image += np.mean(image[c])
+        media += (mean_image / len(coordinates))
+    print("A média de intensidade de pixel do pulmão é {0}".format(media/len(mark_data)))
+    #get_superpixel(get_image(dataset[50]),region_size=10, smooth=10., num_iteration=10, compactness=0.075)
