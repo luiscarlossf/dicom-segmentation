@@ -112,7 +112,23 @@ def get_mark(dataset, position, spacing, roi):
     
     return coordinates
 
-def kmeans():
+def get_coordinates(labeled_image):
+    """
+    Retorna as coordenadas de cada rótulo na imagem
+    De modo que rótulo 1:
+    {1: lits() com as coordenadas}
+    :return coordinates: dict() com coordenadas de cada superpixel
+    """
+    coordinates = dict()
+    for i in np.arange(512):
+        for j in np.arange(512):
+            try:
+                coordinates[labeled_image[i, j]].append((i,j))
+            except KeyError:
+                coordinates[labeled_image[i, j]] = list()
+    return coordinates
+
+def kmeans(segmented_image):
     pass
 
 def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=0.075):
@@ -131,13 +147,14 @@ def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=0.0
     for i in np.arange(512):
         for j in np.arange(512):
             try:
-                coordinates[labels[i, j]].append((i,j))
+                coordinates[labels[i, j]][0].append(i)
+                coordinates[labels[i, j]][1].append(j)
             except KeyError:
-                coordinates[labels[i, j]] = list()
+                coordinates[labels[i, j]] = [list(), list()]
     seconds = time.time() - start        
     print("Levou {0} segundos para retornar os labels".format(seconds))
     print("Média da cor do superpixel é {0} ".format(np.mean(image_[coordinates[i]])))
-
+    
     """
     props = regionprops(labels)
     for i in props[1100]['coords']:
@@ -197,11 +214,40 @@ def dice():
     print('Dice similarity score is {}'.format(dice))
 
 if __name__ == "__main__":
+    image = cv2.imread("./outputs/lung.png", 0)
+    p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
+
+    image_ = np.copy(p)
+    s_slic = cv2.ximgproc.createSuperpixelLSC(image, 40)
+    s_slic.iterate(20)
+    masks = s_slic.getLabelContourMask()
+    image_[masks == 255] = 255
+    labels = s_slic.getLabels()
+    coordinates = get_coordinates(labeled_image=labels)
+    arquivo = open("./outputs/superpixels-info.txt","w")
+    for i, key in enumerate(coordinates):
+        if i == 4:
+            image_[coordinates[key][0], coordinates[key][1]] = 255
+        rows = np.array(coordinates[key][0])
+        columns = np.array(coordinates[key][1])
+        max_r = np.max(rows)
+        min_r = np.min(rows)
+        max_c = np.max(columns)
+        min_c = np.min(columns)
+        centroid = ((((max_r - min_r)//2) + min_r), (((max_c - min_c)//2) + min_c))
+        color_mean = np.mean(image_[coordinates[key]])
+        arquivo.write("Superpixel {0}\n\tCentroid: {1}\n\tColor mean: {2}\n".format(i,centroid, color_mean))
+
+    cv2.imwrite("./outputs/saida-lsc.png", image_)
+    cv2.imwrite("./outputs/saida.png", p)
+    
+    """
     dataset = load_datasets(path)
-    roi = "Heart"
+    roi = "Lung"
     print("{0} aquisições carregadas no dataset!".format(len(dataset)))
     mark_data = get_datamark(datasets=dataset, roi=roi)
     media = 0
+    cv2.imwrite("./outputs/lung.png", get_image(mark_data[len(mark_data)//2]))
     for i in mark_data:
         coordinates = get_mark(dataset[0], position=i.ImagePositionPatient,spacing=i.PixelSpacing, roi=roi)
         image = get_image(i)
@@ -211,3 +257,4 @@ if __name__ == "__main__":
         media += (mean_image / len(coordinates))
     print("A média de intensidade de pixel do pulmão é {0}".format(media/len(mark_data)))
     #get_superpixel(get_image(dataset[50]),region_size=10, smooth=10., num_iteration=10, compactness=0.075)
+    """
