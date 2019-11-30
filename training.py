@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     # Create the Estimator
     mnist_classifier = estimator.Estimator(
-        model_fn=ccn_model_fn, model_dir="/tmp/mnist_convnet_model")
+        model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model")
 
     # Set up logging for predictions
     tensors_to_log = {"probabilities": "softmax_tensor"}

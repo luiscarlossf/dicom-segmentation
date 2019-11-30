@@ -352,8 +352,9 @@ def get_bounding_boxes(image, width, height):
         bottom = x - height//2
         right = y + width//2
         left = y - width//2
-        cv2.imwrite('./outputs/bounding/b'+str(cont)+'.png', image[bottom:top, left:right])
-        cont += 1 
+        print(image[bottom:top, left:right].shape)
+        bboxes.append(image[bottom:top, left:right])
+    return bboxes
 
 """
 standard_path = "C:/Users/luisc/Documents/dicom-database/LCTSC/Train/"

@@ -1,0 +1,260 @@
+import cv2
+import os
+from dicompylercore import dicomparser
+import pydicom
+import numpy as np
+from skimage.measure import regionprops
+import time
+
+path = "C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Test-S1-101"
+
+def show(pixel_array):
+    """
+    Exibe a imagem a partir de um array de pixels.
+
+    :param pixel_array: numpy array com os pixels da imagem.
+    :return:
+    """
+    print("Show was called.")
+    cv2.imshow('image', pixel_array)
+    k = cv2.waitKey(0)
+    if k == 27:         # wait for ESC key to exit
+        cv2.destroyAllWindows()
+
+def load_datasets(path):
+    """
+    Carrega todos os arquivos DICOM de um diretório.
+
+    :param path: str indicando o diretório de origem dos
+                 dos arquivos que se deseja carregar
+    :return volume: lista com os arquivos dicom
+    """
+    volume = list()
+    slice_locations = dict()
+    rtstruct = None
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ds = pydicom.dcmread(root + '/'+ file)
+            if ds.Modality == 'CT':
+                slice_locations[ds.SliceLocation] = ds
+            elif ds.Modality == 'RTSTRUCT':
+                rtstruct = ds
+    volume = [slice_locations[key] for key in sorted(slice_locations.keys())]
+    volume.insert(0, rtstruct)
+    return volume
+
+def get_image(slice):
+    """
+    Retorna um array de pixels com valores LUT
+
+    :param slice: dataset dicom
+    :return pixels_slice:  array numpy com os pixels transformados
+    """
+    ds = dicomparser.DicomParser(slice)
+    intercept, slope = ds.GetRescaleInterceptSlope()
+    rescaled_image = slice.pixel_array * slope + intercept
+    window, level = ds.GetDefaultImageWindowLevel()
+    pixels_slice = ds.GetLUTValue(rescaled_image, window, level)
+
+    return pixels_slice
+
+def get_datamark(datasets, roi):
+    """
+    Retorna apenas os datasets que contenham marcações
+    para região de interesse (ROI)
+
+    :param datasets: list()
+    :param roi: str()
+    :return datasets: list()
+    """
+    marking = dicomparser.DicomParser(datasets[0])
+    structures = marking.GetStructures()
+    roi_number = None
+    for i in structures:
+        if roi in structures[i]['name']:
+            roi_number = structures[i]['id']
+    if roi_number == None:
+        raise NameError(roi + " não está entre as estruturas marcadas")
+    marked_slices = marking.GetStructureCoordinates(roi_number)
+
+    return [ i for i in datasets[1:] if str(round(i.ImagePositionPatient[2], 2)) + '0' in marked_slices ]
+
+def get_mark(dataset, position, spacing, roi):
+    """
+    Retorna a marcação de uma região de interesse (ROI) dado um dataset DICOM
+    na modalidade RTSTRUCT
+
+    :param dataset: Dataset da modalidade RTSTRUCT 
+    :param position: tuple() com coordenadas x,y,z do canto superior esquerdo
+                     da imagem
+    :param spacing: tuple() com a distância física no paciente entre o centro de cada pixel, 
+                    especificado por um par numérico - espaçamento de linhas adjacentes 
+                    (delimitador) espaçamento de colunas adjacentes em mm.
+    :param roi: str() representando o nome da região de interesse que se deseja obter a marcação
+
+    :return coordinates: list() com indices das marcação na imagem.
+    """
+    marking = dicomparser.DicomParser(dataset)
+    structures = marking.GetStructures()
+    roi_number = None
+    for i in structures:
+        if roi in structures[i]['name']:
+            roi_number = structures[i]['id']
+    if roi_number == None:
+        raise NameError(roi + " não está entre as estruturas marcadas")
+    
+    coordinates = list()
+    for mark in marking.GetStructureCoordinates(roi_number)[str(round(position[2], 2)) + '0']:
+        contour = np.array(mark['data'])
+        rows = ((contour[:, 1] - position[1])/spacing[1]).astype(int)
+        columns = ((contour[:, 0] - position[0])/spacing[0]).astype(int)
+        coordinates.append([rows, columns])
+    
+    return coordinates
+
+def get_coordinates(labeled_image):
+    """
+    Retorna as coordenadas de cada rótulo na imagem
+    De modo que rótulo 1:
+    {1: lits() com as coordenadas}
+    :return coordinates: dict() com coordenadas de cada superpixel
+    """
+    coordinates = dict()
+    for i in np.arange(512):
+        for j in np.arange(512):
+            try:
+                coordinates[labeled_image[i, j]].append((i,j))
+            except KeyError:
+                coordinates[labeled_image[i, j]] = list()
+    return coordinates
+
+def kmeans(segmented_image):
+    pass
+
+def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=0.075):
+    start = time.time()
+    image_ = np.copy(image)
+    s = cv2.ximgproc.createSuperpixelLSC(image, region_size, compactness)
+    print("Foram gerados {0} superpixels.".format(s.getNumberOfSuperpixels))
+    s.iterate()
+    s.enforceLabelConnectivity(10)
+    seconds = time.time() - start 
+    print("Levou {0} segundos para gerar superpixels".format(seconds))
+
+    labels = s.getLabels()
+    start = time.time()
+    coordinates = dict()
+    for i in np.arange(512):
+        for j in np.arange(512):
+            try:
+                coordinates[labels[i, j]][0].append(i)
+                coordinates[labels[i, j]][1].append(j)
+            except KeyError:
+                coordinates[labels[i, j]] = [list(), list()]
+    seconds = time.time() - start        
+    print("Levou {0} segundos para retornar os labels".format(seconds))
+    print("Média da cor do superpixel é {0} ".format(np.mean(image_[coordinates[i]])))
+    
+    """
+    props = regionprops(labels)
+    for i in props[1100]['coords']:
+        image_[i[1], i[0]]=255
+    print("{0} labels retornados.".format(len(props)))
+    masks = s.getLabelContourMask()
+    image_[masks == 255] = 255
+    show(image_)
+
+    image_ = np.copy(image)
+    s_slic = cv2.ximgproc.createSuperpixelSLIC(image, cv2.ximgproc.SLIC, region_size, smooth)
+    #s_slic.enforceLabelConnectivity()
+    s_slic.iterate(num_iteration)
+    masks = s_slic.getLabelContourMask()
+    image_[masks == 255] = 255
+    cv2.imwrite("./outputs/slic-{0}-{1}-{2}.png".format(region_size, smooth, num_iteration), image_)
+
+    image_ = np.copy(image)
+    s_slic = cv2.ximgproc.createSuperpixelSLIC(image, cv2.ximgproc.SLICO, region_size, smooth)
+    s_slic.iterate(num_iteration)
+    masks = s_slic.getLabelContourMask()
+    image_[masks == 255] = 255
+    cv2.imwrite("./outputs/slico-{0}-{1}-{2}.png".format(region_size, smooth, num_iteration), image_)
+
+    image_ = np.copy(image)
+    s_slic = cv2.ximgproc.createSuperpixelSLIC(image, cv2.ximgproc.MSLIC, region_size, smooth)
+    s_slic.iterate(num_iteration)
+    masks = s_slic.getLabelContourMask()
+    image_[masks == 255] = 255
+    cv2.imwrite("./outputs/mslic-{0}-{1}-{2}.png".format(region_size, smooth, num_iteration), image_)
+
+    image_ = np.copy(image)
+    s_slic = cv2.ximgproc.createSuperpixelLSC(image, region_size)
+    s_slic.iterate()
+    masks = s_slic.getLabelContourMask()
+    image_[masks == 255] = 255
+    cv2.imwrite("./outputs/lsc-{0}.png".format(region_size), image_)
+
+    image_ = np.copy(image)
+    s_slic = cv2.ximgproc.createSuperpixelSEEDS(image.shape[0], image.shape[1], 1, 10000, 2)
+    s_slic.iterate(image, 20)
+    masks = s_slic.getLabelContourMask()
+    image_[masks == 255] = 255
+    cv2.imwrite("./outputs/seeds-{0}-{1}-{2}-{3}-{4}.png".format(image.shape[0], image.shape[1], 1, 10000, 2), image_)
+    """
+
+def dice():
+    k = 1
+    seg = np.zeros((100,100), dtype='int')
+    seg[30:70, 30:70] = k
+
+    gt = np.zeros((100,100), dtype='int')
+    gt[30:70, 40:80] = k
+
+    dice = np.sum(seg[gt==k]) * 2.0 / (np.sum(seg) + np.sum(gt))
+
+    print('Dice similarity score is {}'.format(dice))
+
+if __name__ == "__main__":
+    image = cv2.imread("./outputs/lung.png", 0)
+    p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
+
+    image_ = np.copy(p)
+    s_slic = cv2.ximgproc.createSuperpixelLSC(image, 40)
+    s_slic.iterate(20)
+    masks = s_slic.getLabelContourMask()
+    image_[masks == 255] = 255
+    labels = s_slic.getLabels()
+    coordinates = get_coordinates(labeled_image=labels)
+    arquivo = open("./outputs/superpixels-info.txt","w")
+    for i, key in enumerate(coordinates):
+        if i == 4:
+            image_[coordinates[key][0], coordinates[key][1]] = 255
+        rows = np.array(coordinates[key][0])
+        columns = np.array(coordinates[key][1])
+        max_r = np.max(rows)
+        min_r = np.min(rows)
+        max_c = np.max(columns)
+        min_c = np.min(columns)
+        centroid = ((((max_r - min_r)//2) + min_r), (((max_c - min_c)//2) + min_c))
+        color_mean = np.mean(image_[coordinates[key]])
+        arquivo.write("Superpixel {0}\n\tCentroid: {1}\n\tColor mean: {2}\n".format(i,centroid, color_mean))
+
+    cv2.imwrite("./outputs/saida-lsc.png", image_)
+    cv2.imwrite("./outputs/saida.png", p)
+    
+    """
+    dataset = load_datasets(path)
+    roi = "Lung"
+    print("{0} aquisições carregadas no dataset!".format(len(dataset)))
+    mark_data = get_datamark(datasets=dataset, roi=roi)
+    media = 0
+    cv2.imwrite("./outputs/lung.png", get_image(mark_data[len(mark_data)//2]))
+    for i in mark_data:
+        coordinates = get_mark(dataset[0], position=i.ImagePositionPatient,spacing=i.PixelSpacing, roi=roi)
+        image = get_image(i)
+        mean_image = 0
+        for c in coordinates:
+            mean_image += np.mean(image[c])
+        media += (mean_image / len(coordinates))
+    print("A média de intensidade de pixel do pulmão é {0}".format(media/len(mark_data)))
+    #get_superpixel(get_image(dataset[50]),region_size=10, smooth=10., num_iteration=10, compactness=0.075)
+    """
