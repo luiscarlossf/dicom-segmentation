@@ -145,20 +145,20 @@ def get_coordinates(labeled_image, masks, length):
                 """
                 if labeled_image[i+1, j] != labeled_image[i-1, j]:
                     adjacency.add((labeled_image[i+1, j], labeled_image[i-1, j]))
-                if labeled_image[i-1, j] !=  labeled_image[i+1, j]:
-                    adjacency.add((labeled_image[i-1, j], labeled_image[i+1, j]))
+                #if labeled_image[i-1, j] !=  labeled_image[i+1, j]:
+                #    adjacency.add((labeled_image[i-1, j], labeled_image[i+1, j]))
                 if labeled_image[i, j+1] != labeled_image[i, j-1]:
                     adjacency.add((labeled_image[i, j+1], labeled_image[i, j-1]))
-                if labeled_image[i, j-1] !=  labeled_image[i, j+1]:
-                    adjacency.add((labeled_image[i, j-1], labeled_image[i, j+1]))
+                #if labeled_image[i, j-1] !=  labeled_image[i, j+1]:
+                #    adjacency.add((labeled_image[i, j-1], labeled_image[i, j+1]))
                 if labeled_image[i+1, j-1] != labeled_image[i-1, j+1]:
                     adjacency.add((labeled_image[i+1, j-1],labeled_image[i-1, j+1]))
-                if labeled_image[i-1, j+1]!= labeled_image[i+1, j-1]:
-                    adjacency.add((labeled_image[i-1, j+1], labeled_image[i+1, j-1]))
+                #if labeled_image[i-1, j+1]!= labeled_image[i+1, j-1]:
+                #    adjacency.add((labeled_image[i-1, j+1], labeled_image[i+1, j-1]))
                 if labeled_image[i+1, j+1] != labeled_image[ i-1, j-1]:
                     adjacency.add((labeled_image[i+1, j+1], labeled_image[ i-1, j-1]))
-                if labeled_image[ i-1, j-1] != labeled_image[i+1, j+1]:
-                    adjacency.add((labeled_image[ i-1, j-1], labeled_image[i+1, j+1]))
+                #if labeled_image[ i-1, j-1] != labeled_image[i+1, j+1]:
+                #    adjacency.add((labeled_image[ i-1, j-1], labeled_image[i+1, j+1]))
                 
     
             try:
@@ -291,10 +291,10 @@ def return_superpixels(image):
     image_ = np.copy(p)
     s_slic = cv2.ximgproc.createSuperpixelLSC(image, 40)
     s_slic.iterate(20)
-    #masks = s_slic.getLabelContourMask()
+    masks = s_slic.getLabelContourMask()
     #image_[masks == 255] = 255
     labels = s_slic.getLabels()
-    coordinates, adjacency = get_coordinates(labeled_image=labels)
+    coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=s_slic.getNumberOfSuperpixels())
     #arquivo = open("./outputs/superpixels-info.txt","w")
     pixels = list()
     for i, key in enumerate(coordinates):
@@ -310,7 +310,7 @@ def return_superpixels(image):
         #if i in [66, 70, 73, 74, 80, 84,90, 95, 100, 105, 106]:
         #    image_[coordinates[key]] = 255
         pixels.append({"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]})
-        return pixels
+        return pixels, adjacency
 
     
 if __name__ == "__main__":
