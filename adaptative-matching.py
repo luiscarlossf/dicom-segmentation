@@ -5,6 +5,7 @@ import pydicom
 from random import choice
 from dicompylercore import dicomparser
 from skimage.measure import regionprops
+
 """
 ADAPTIVE TEMPLATE MATCHING
 """
@@ -44,6 +45,56 @@ def load_datasets(path):
     return volume
 
 
+def load_rtstruct(path):
+    """
+    Carrega o documento de marcação RT STRUCT do volume
+    no referente path
+
+    :param path: str indicando o diretório do conjunto
+                 de slices DICOM, incluindo o RT STRUCT
+    :return rt_struct: uma instância do dicompyler com as
+                  marcações
+    """
+    rt_struct = None
+
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ds = pydicom.dcmread(root + '/'+ file)
+            if ds.Modality != 'CT':
+                rt_struct = dicomparser.DicomParser(ds)
+
+    return rt_struct
+
+
+def get_marking(rt_struct, structure_name, position_patient, pixel_spacing):
+    """
+    Encontra a marcação da estrutura especificada no rt_struct
+    na posição passada por parâmetro.
+
+    :param rt_struct: instância do dicompyler 
+    :param structure_name: str com nome da estrutura marcada
+    :param position_patient: float com a positiona do paciente na imagem
+
+    :return marking: coordenadas da marcação
+    """
+    marking = None
+    structures = marking.GetStructures()
+    number_roi = None
+    for i in structures:
+        if structures[i]['name'] == structure_name:
+            number_roi = structures[i]['id']
+
+    try:
+        contour = np.array(marking.GetStructureCoordinates(number_roi)['{0:.2f}'.format(position_patient)][0]['data'])
+    except KeyError:
+        return None
+
+    rows = ((contour[:, 1] - position_patient[1])/pixel_spacing[1]).astype(int)
+    columns = ((contour[:, 0] - position_patient[0])/pixel_spacing[0]).astype(int)
+    marking = [rows, columns]
+    return marking
+
+
 def loadpath_volumes(path):
     """
     Gera uma lista com os paths dos volumes no path
@@ -69,7 +120,7 @@ def choice_volume(path):
     """
     path_volume = None
     ds = list()
-    marks = None
+    marks = None #Guarda o RT_STRUCT, as marcações do especialista.
     slice_locations = dict()
     for root, dirs, files in os.walk(path):
         path_volume = root+choice(dirs)
@@ -206,6 +257,7 @@ def getInitialTemplates(standard_template, volume_paths):
     return results
 
 def getAdaptativeTemplates(results):
+    templates_result = list()
     for initial_info in results: # Informações do template inicial
         # - Executa o Template Matching no primeiro slice onde a combinação ocorre, como resultado temos:
         # o Novo Template e uma imagem.
@@ -251,7 +303,8 @@ def getAdaptativeTemplates(results):
             adaptative_template = datasets[i][180:400, 150:400][minloc[1]:minloc[1] + h, minloc[0]:minloc[0] + w]
             cv2.imwrite(dirname + "/{0}.png".format(i), adaptative_template)
             results2.append(adaptative_template)
-    return results2
+        templates_result.append({'path':initial_info['path_volume'], 'results':results2})
+    return templates_result
 
 def getCandidatesSegmentation(path):
     for root, dirs, files in os.walk(path):
@@ -291,6 +344,7 @@ def get_bounding_boxes(image, width, height):
     retval.iterate()
     a = retval.getLabelContourMask()
     labels = retval.getLabels()
+    cont =0
     for prop in regionprops(labels):
         x = int(prop.centroid[0]) + int(blur.shape[0] * 0.5)
         y = int(prop.centroid[1]) + int(blur.shape[1] * 0.5)
@@ -301,7 +355,6 @@ def get_bounding_boxes(image, width, height):
         print(image[bottom:top, left:right].shape)
         bboxes.append(image[bottom:top, left:right])
     return bboxes
-
 
 """
 standard_path = "C:/Users/luisc/Documents/dicom-database/LCTSC/Train/"
