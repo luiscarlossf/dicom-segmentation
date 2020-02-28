@@ -128,21 +128,6 @@ def get_coordinates(labeled_image, masks, length):
     for i in np.arange(512):
         for j in np.arange(512):
             if (mascara[i, j] == True) and (i > 0) and (i < 511) and (j > 0) and (j < 511):
-                #if (i > 0) and (i < 511):
-                """
-                print("Coordenada? ({0}, {1})".format(i, j))
-                print(labeled_image[1, 0:80])
-                print("{0}".format((labeled_image[i+1, j], labeled_image[i-1, j])))
-                print("{0}".format((labeled_image[i-1, j], labeled_image[i+1, j])))
-                print("{0}".format((labeled_image[i, j+1], labeled_image[i, j-1])))
-                print("{0}".format((labeled_image[i, j-1], labeled_image[i, j+1])))
-                print("{0}".format((labeled_image[i+1, j-1],labeled_image[i-1, j+1])))
-                print("{0}".format((labeled_image[i-1, j+1], labeled_image[i+1, j-1])))
-                print("{0}".format((labeled_image[i+1, j+1], labeled_image[i-1, j-1])))
-                print("{0}".format((labeled_image[i-1, j-1], labeled_image[i+1, j+1])))
-                input()
-
-                """
                 if labeled_image[i+1, j] != labeled_image[i-1, j]:
                     adjacency.add((labeled_image[i+1, j], labeled_image[i-1, j]))
                 #if labeled_image[i-1, j] !=  labeled_image[i+1, j]:
@@ -166,6 +151,8 @@ def get_coordinates(labeled_image, masks, length):
                 coordinates[labeled_image[i, j]][1].append(j)
             except KeyError:
                 coordinates[labeled_image[i, j]] = [list(), list()]
+                coordinates[labeled_image[i, j]][0].append(i)
+                coordinates[labeled_image[i, j]][1].append(j)
     return coordinates , adjacency
 
 class Group:
@@ -286,18 +273,18 @@ def kmeans(samples, k):
     print(groups)
 
 def return_superpixels(image):
-    p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
-
-    image_ = np.copy(p)
-    s_slic = cv2.ximgproc.createSuperpixelLSC(image, 40)
+    #p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
+    #image_ = np.copy(p)
+    image_ = cv2.imread("./outputs/saida1.png", 0)
+    s_slic = cv2.ximgproc.createSuperpixelLSC(image_, 40)
     s_slic.iterate(20)
     masks = s_slic.getLabelContourMask()
-    #image_[masks == 255] = 255
+    image_[masks == 255] = 255
     labels = s_slic.getLabels()
     coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=s_slic.getNumberOfSuperpixels())
     #arquivo = open("./outputs/superpixels-info.txt","w")
-    pixels = list()
-    for i, key in enumerate(coordinates):
+    pixels = dict()
+    for key in coordinates:
         rows = np.array(coordinates[key][0])
         columns = np.array(coordinates[key][1])
         max_r = np.max(rows)
@@ -309,10 +296,20 @@ def return_superpixels(image):
         cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.4,255)
         #if i in [66, 70, 73, 74, 80, 84,90, 95, 100, 105, 106]:
         #    image_[coordinates[key]] = 255
-        pixels.append({"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]})
-        return pixels, adjacency
+        pixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
+    cv2.imwrite("./outputs/saida-lsc2.png", image_)
+    return pixels, adjacency
 
     
+
+
+
+
+
+
+
+#############################################
+"""
 if __name__ == "__main__":
     image = cv2.imread("./outputs/lung.png", 0)
     p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
@@ -328,7 +325,7 @@ if __name__ == "__main__":
     print(((0,16)  in adjacency) and ((0,1)  in adjacency) and ((1, 19)  in adjacency))
     arquivo = open("./outputs/superpixels-info.txt","w")
     pixels = list()
-    for i, key in enumerate(coordinates):
+    for key in coordinates:
         rows = np.array(coordinates[key][0])
         columns = np.array(coordinates[key][1])
         max_r = np.max(rows)
@@ -345,8 +342,7 @@ if __name__ == "__main__":
 
     cv2.imwrite("./outputs/saida-lsc.png", image_)
     cv2.imwrite("./outputs/saida.png", p)
-    
-    """
+##########
     dataset = load_datasets(path)
     roi = "Lung"
     print("{0} aquisições carregadas no dataset!".format(len(dataset)))
