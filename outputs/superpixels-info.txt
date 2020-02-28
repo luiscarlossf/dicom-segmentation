@@ -1,0 +1,468 @@
+Superpixel 0
+	Centroid: (19, 21)
+	Color mean: 9.222158438576349
+Superpixel 13
+	Centroid: (21, 65)
+	Color mean: 12.916666666666666
+Superpixel 26
+	Centroid: (17, 108)
+	Color mean: 8.157389635316699
+Superpixel 39
+	Centroid: (21, 150)
+	Color mean: 10.946615299944964
+Superpixel 52
+	Centroid: (23, 194)
+	Color mean: 13.537519142419601
+Superpixel 65
+	Centroid: (17, 237)
+	Color mean: 8.315217391304348
+Superpixel 78
+	Centroid: (23, 279)
+	Color mean: 14.137577002053389
+Superpixel 91
+	Centroid: (19, 322)
+	Color mean: 11.82218309859155
+Superpixel 104
+	Centroid: (18, 365)
+	Color mean: 8.41904761904762
+Superpixel 117
+	Centroid: (22, 407)
+	Color mean: 13.182552504038773
+Superpixel 130
+	Centroid: (18, 448)
+	Color mean: 10.408163265306122
+Superpixel 143
+	Centroid: (20, 490)
+	Color mean: 10.104895104895105
+Superpixel 27
+	Centroid: (53, 108)
+	Color mean: 8.280216476247745
+Superpixel 66
+	Centroid: (54, 236)
+	Color mean: 8.932203389830509
+Superpixel 105
+	Centroid: (55, 367)
+	Color mean: 8.5
+Superpixel 131
+	Centroid: (56, 446)
+	Color mean: 8.529929577464788
+Superpixel 1
+	Centroid: (59, 22)
+	Color mean: 7.487046632124352
+Superpixel 92
+	Centroid: (60, 320)
+	Color mean: 11.480022509848059
+Superpixel 144
+	Centroid: (61, 489)
+	Color mean: 10.112068965517242
+Superpixel 14
+	Centroid: (63, 65)
+	Color mean: 13.532338308457712
+Superpixel 40
+	Centroid: (64, 151)
+	Color mean: 10.082372322899506
+Superpixel 118
+	Centroid: (68, 406)
+	Color mean: 12.082644628099173
+Superpixel 53
+	Centroid: (70, 195)
+	Color mean: 12.677369238736405
+Superpixel 79
+	Centroid: (69, 279)
+	Color mean: 12.052575677110994
+Superpixel 28
+	Centroid: (93, 109)
+	Color mean: 8.384353741496598
+Superpixel 67
+	Centroid: (95, 236)
+	Color mean: 9.208709506107276
+Superpixel 106
+	Centroid: (95, 366)
+	Color mean: 8.193348365276211
+Superpixel 132
+	Centroid: (98, 445)
+	Color mean: 8.286773090079818
+Superpixel 2
+	Centroid: (99, 23)
+	Color mean: 7.2560975609756095
+Superpixel 93
+	Centroid: (102, 320)
+	Color mean: 11.258278145695364
+Superpixel 145
+	Centroid: (101, 489)
+	Color mean: 9.566236811254397
+Superpixel 15
+	Centroid: (105, 66)
+	Color mean: 12.930752453653216
+Superpixel 41
+	Centroid: (108, 151)
+	Color mean: 9.243070362473347
+Superpixel 119
+	Centroid: (112, 406)
+	Color mean: 11.292040358744394
+Superpixel 80
+	Centroid: (115, 278)
+	Color mean: 10.901981230448383
+Superpixel 54
+	Centroid: (118, 196)
+	Color mean: 9.91811668372569
+Superpixel 29
+	Centroid: (133, 111)
+	Color mean: 8.310700706137968
+Superpixel 68
+	Centroid: (148, 238)
+	Color mean: 8.904761904761905
+Superpixel 107
+	Centroid: (145, 366)
+	Color mean: 7.539598732840549
+Superpixel 133
+	Centroid: (141, 448)
+	Color mean: 8.542009884678748
+Superpixel 3
+	Centroid: (138, 23)
+	Color mean: 7.043404735062007
+Superpixel 146
+	Centroid: (141, 491)
+	Color mean: 10.44315403422983
+Superpixel 94
+	Centroid: (148, 318)
+	Color mean: 10.913361169102297
+Superpixel 16
+	Centroid: (147, 66)
+	Color mean: 12.559490868843387
+Superpixel 42
+	Centroid: (159, 153)
+	Color mean: 9.336661911554922
+Superpixel 120
+	Centroid: (163, 406)
+	Color mean: 11.217008797653959
+Superpixel 55
+	Centroid: (163, 207)
+	Color mean: 12.697638603696099
+Superpixel 81
+	Centroid: (164, 271)
+	Color mean: 10.21901211556384
+Superpixel 30
+	Centroid: (182, 107)
+	Color mean: 12.771285475792988
+Superpixel 4
+	Centroid: (179, 24)
+	Color mean: 6.684327941996654
+Superpixel 82
+	Centroid: (185, 336)
+	Color mean: 136.81360201511336
+Superpixel 121
+	Centroid: (192, 389)
+	Color mean: 209.07582938388626
+Superpixel 95
+	Centroid: (199, 308)
+	Color mean: 150.6818181818182
+Superpixel 147
+	Centroid: (184, 489)
+	Color mean: 4.936393805309734
+Superpixel 134
+	Centroid: (193, 440)
+	Color mean: 12.052575677110994
+Superpixel 135
+	Centroid: (203, 414)
+	Color mean: 139.0362865221489
+Superpixel 17
+	Centroid: (189, 66)
+	Color mean: 13.399241603466956
+Superpixel 83
+	Centroid: (210, 261)
+	Color mean: 172.67085624509033
+Superpixel 69
+	Centroid: (203, 254)
+	Color mean: 146.58010563380282
+Superpixel 56
+	Centroid: (198, 176)
+	Color mean: 136.64276401564538
+Superpixel 57
+	Centroid: (208, 208)
+	Color mean: 162.0333598093725
+Superpixel 70
+	Centroid: (212, 179)
+	Color mean: 175.3125
+Superpixel 43
+	Centroid: (215, 110)
+	Color mean: 138.8244514106583
+Superpixel 31
+	Centroid: (224, 128)
+	Color mean: 146.767723880597
+Superpixel 108
+	Centroid: (219, 390)
+	Color mean: 154.18008048289738
+Superpixel 122
+	Centroid: (222, 383)
+	Color mean: 252.12406015037595
+Superpixel 109
+	Centroid: (225, 369)
+	Color mean: 7.414664981036663
+Superpixel 5
+	Centroid: (222, 22)
+	Color mean: 5.773053561568195
+Superpixel 148
+	Centroid: (221, 476)
+	Color mean: 7.533572068039391
+Superpixel 44
+	Centroid: (214, 157)
+	Color mean: 252.06896551724137
+Superpixel 96
+	Centroid: (232, 304)
+	Color mean: 12.45890410958904
+Superpixel 84
+	Centroid: (212, 253)
+	Color mean: 250.56521739130434
+Superpixel 18
+	Centroid: (237, 71)
+	Color mean: 17.441037735849058
+Superpixel 45
+	Centroid: (241, 138)
+	Color mean: 13.15886472539624
+Superpixel 58
+	Centroid: (248, 203)
+	Color mean: 8.15260382333553
+Superpixel 71
+	Centroid: (252, 258)
+	Color mean: 140.0951755825402
+Superpixel 138
+	Centroid: (262, 430)
+	Color mean: 136.32600561272218
+Superpixel 136
+	Centroid: (273, 429)
+	Color mean: 182.74177949709863
+Superpixel 19
+	Centroid: (275, 86)
+	Color mean: 147.08298926507018
+Superpixel 149
+	Centroid: (258, 478)
+	Color mean: 8.266208251473477
+Superpixel 110
+	Centroid: (268, 383)
+	Color mean: 8.147668393782384
+Superpixel 6
+	Centroid: (264, 35)
+	Color mean: 10.012531328320803
+Superpixel 97
+	Centroid: (282, 294)
+	Color mean: 169.7560975609756
+Superpixel 72
+	Centroid: (291, 229)
+	Color mean: 145.37881958978653
+Superpixel 111
+	Centroid: (283, 321)
+	Color mean: 21.423060437205315
+Superpixel 32
+	Centroid: (269, 109)
+	Color mean: 248.54430379746836
+Superpixel 123
+	Centroid: (301, 422)
+	Color mean: 200.38107752956637
+Superpixel 59
+	Centroid: (304, 223)
+	Color mean: 166.5141955835962
+Superpixel 85
+	Centroid: (306, 287)
+	Color mean: 149.56973293768547
+Superpixel 20
+	Centroid: (308, 87)
+	Color mean: 183.09683313032886
+Superpixel 46
+	Centroid: (297, 150)
+	Color mean: 8.286773090079818
+Superpixel 98
+	Centroid: (309, 275)
+	Color mean: 191.63951120162932
+Superpixel 150
+	Centroid: (308, 480)
+	Color mean: 6.930543572044867
+Superpixel 7
+	Centroid: (310, 32)
+	Color mean: 7.446
+Superpixel 125
+	Centroid: (323, 417)
+	Color mean: 175.17733230531996
+Superpixel 112
+	Centroid: (317, 366)
+	Color mean: 12.418439716312056
+Superpixel 137
+	Centroid: (309, 408)
+	Color mean: 222.54545454545453
+Superpixel 124
+	Centroid: (308, 408)
+	Color mean: 250.24844720496895
+Superpixel 33
+	Centroid: (329, 91)
+	Color mean: 195.60493827160494
+Superpixel 139
+	Centroid: (335, 411)
+	Color mean: 155.75484764542935
+Superpixel 60
+	Centroid: (338, 217)
+	Color mean: 18.896496173983085
+Superpixel 87
+	Centroid: (338, 254)
+	Color mean: 193.41681574239715
+Superpixel 8
+	Centroid: (341, 77)
+	Color mean: 136.76150121065376
+Superpixel 73
+	Centroid: (343, 261)
+	Color mean: 232.09580838323353
+Superpixel 151
+	Centroid: (338, 465)
+	Color mean: 10.469208211143695
+Superpixel 47
+	Centroid: (342, 155)
+	Color mean: 12.37012987012987
+Superpixel 99
+	Centroid: (346, 325)
+	Color mean: 15.283152430391695
+Superpixel 86
+	Centroid: (352, 267)
+	Color mean: 241.2574850299401
+Superpixel 61
+	Centroid: (353, 257)
+	Color mean: 251.86903137789903
+Superpixel 21
+	Centroid: (337, 111)
+	Color mean: 239.47826086956522
+Superpixel 34
+	Centroid: (335, 109)
+	Color mean: 250.01396648044692
+Superpixel 35
+	Centroid: (362, 105)
+	Color mean: 172.3887587822014
+Superpixel 113
+	Centroid: (369, 361)
+	Color mean: 161.18470855412565
+Superpixel 9
+	Centroid: (360, 32)
+	Color mean: 6.343728100911002
+Superpixel 48
+	Centroid: (356, 214)
+	Color mean: 246.61971830985917
+Superpixel 126
+	Centroid: (370, 366)
+	Color mean: 168.3
+Superpixel 152
+	Centroid: (363, 483)
+	Color mean: 6.684938036224976
+Superpixel 22
+	Centroid: (376, 130)
+	Color mean: 155.7459338194055
+Superpixel 75
+	Centroid: (374, 241)
+	Color mean: 192.41065407956845
+Superpixel 88
+	Centroid: (374, 294)
+	Color mean: 168.3628659476117
+Superpixel 100
+	Centroid: (374, 303)
+	Color mean: 160.22648083623693
+Superpixel 62
+	Centroid: (374, 167)
+	Color mean: 168.6892829606785
+Superpixel 74
+	Centroid: (375, 232)
+	Color mean: 180.59083601286173
+Superpixel 127
+	Centroid: (386, 397)
+	Color mean: 18.23076923076923
+Superpixel 140
+	Centroid: (390, 441)
+	Color mean: 21.846910112359552
+Superpixel 23
+	Centroid: (389, 76)
+	Color mean: 17.804592314901594
+Superpixel 36
+	Centroid: (406, 120)
+	Color mean: 16.17361111111111
+Superpixel 49
+	Centroid: (416, 178)
+	Color mean: 38.98301393728223
+Superpixel 114
+	Centroid: (416, 355)
+	Color mean: 17.480314960629922
+Superpixel 10
+	Centroid: (408, 27)
+	Color mean: 8.178822495606326
+Superpixel 76
+	Centroid: (418, 235)
+	Color mean: 16.542227662178703
+Superpixel 153
+	Centroid: (412, 484)
+	Color mean: 6.320182094081942
+Superpixel 101
+	Centroid: (427, 298)
+	Color mean: 14.328018223234624
+Superpixel 24
+	Centroid: (439, 75)
+	Color mean: 7.566765578635015
+Superpixel 128
+	Centroid: (447, 396)
+	Color mean: 8.69556285949055
+Superpixel 141
+	Centroid: (446, 447)
+	Color mean: 6.123697326687812
+Superpixel 37
+	Centroid: (451, 136)
+	Color mean: 8.348827809215845
+Superpixel 154
+	Centroid: (454, 488)
+	Color mean: 9.070567986230637
+Superpixel 11
+	Centroid: (453, 27)
+	Color mean: 9.209370424597365
+Superpixel 63
+	Centroid: (470, 206)
+	Color mean: 12.777185501066098
+Superpixel 89
+	Centroid: (470, 268)
+	Color mean: 9.071504802561366
+Superpixel 115
+	Centroid: (462, 338)
+	Color mean: 6.466987319632707
+Superpixel 50
+	Centroid: (482, 174)
+	Color mean: 10.582329317269076
+Superpixel 102
+	Centroid: (486, 304)
+	Color mean: 16.02333931777379
+Superpixel 142
+	Centroid: (487, 428)
+	Color mean: 2.873862158647594
+Superpixel 25
+	Centroid: (487, 74)
+	Color mean: 1.981009926629262
+Superpixel 129
+	Centroid: (488, 371)
+	Color mean: 9.383624655013799
+Superpixel 38
+	Centroid: (489, 123)
+	Color mean: 9.661016949152541
+Superpixel 155
+	Centroid: (490, 483)
+	Color mean: 3.811303129378795
+Superpixel 12
+	Centroid: (492, 26)
+	Color mean: 4.324254881808838
+Superpixel 116
+	Centroid: (488, 347)
+	Color mean: 240.0
+Superpixel 51
+	Centroid: (490, 165)
+	Color mean: 255.0
+Superpixel 64
+	Centroid: (495, 199)
+	Color mean: 255.0
+Superpixel 103
+	Centroid: (496, 303)
+	Color mean: 255.0
+Superpixel 77
+	Centroid: (503, 239)
+	Color mean: 68.22368421052632
+Superpixel 90
+	Centroid: (500, 252)
+	Color mean: 255.0
