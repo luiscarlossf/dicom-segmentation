@@ -153,7 +153,7 @@ def get_coordinates(labeled_image, masks, length):
                 coordinates[labeled_image[i, j]] = [list(), list()]
                 coordinates[labeled_image[i, j]][0].append(i)
                 coordinates[labeled_image[i, j]][1].append(j)
-    return coordinates , adjacency
+    return coordinates , list(adjacency)
 
 class Group:
     def __init__(self, center):
@@ -272,7 +272,10 @@ def kmeans(samples, k):
             recalcula = recalcula and group.recalcula()
     print(groups)
 
-def return_superpixels(image):
+def return_superpixels(image, info=False):
+    """
+    Retorna uma tupla com os superpixels da imagem e suas adjacências.
+    """
     #p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
     #image_ = np.copy(p)
     image_ = cv2.imread("./outputs/saida1.png", 0)
@@ -282,7 +285,8 @@ def return_superpixels(image):
     image_[masks == 255] = 255
     labels = s_slic.getLabels()
     coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=s_slic.getNumberOfSuperpixels())
-    #arquivo = open("./outputs/superpixels-info.txt","w")
+    if info:
+        arquivo = open("./outputs/superpixels-info.txt","w")
     pixels = dict()
     for key in coordinates:
         rows = np.array(coordinates[key][0])
@@ -294,10 +298,16 @@ def return_superpixels(image):
         centroid = ((((max_r - min_r)//2) + min_r), (((max_c - min_c)//2) + min_c))
         color_mean = np.mean(image_[coordinates[key]])
         cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.4,255)
+        #if color_mean < 10:
+        #    image_[coordinates[key]] = 255
         #if i in [66, 70, 73, 74, 80, 84,90, 95, 100, 105, 106]:
         #    image_[coordinates[key]] = 255
+        if info:
+            arquivo.write("Superpixel {0}\n\tCentroid: {1}\n\tColor mean: {2}\n".format(key,centroid, color_mean))
         pixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
-    cv2.imwrite("./outputs/saida-lsc2.png", image_)
+    if info:
+        arquivo.close()
+    #cv2.imwrite("./outputs/saida-seg.png", image_)
     return pixels, adjacency
 
     
