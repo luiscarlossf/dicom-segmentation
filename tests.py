@@ -19,10 +19,8 @@ coords, adjcs = get_coordinates(labeled_image=labels,masks=masks, length=s_numbe
 zeros = np.zeros(image_.shape, dtype=np.uint8)
 zeros[masks==255] = 255
 for c in coords:
-    coords[c][0] = np.array(coords[c][0])
-    coords[c][1] = np.array(coords[c][1])
-    mean_r = int(coords[c][0].mean())
-    mean_c = int(coords[c][1].mean())
+    mean_r = int(np.mean(coords[c][0]))
+    mean_c = int(np.mean(coords[c][1]))
     zeros[(mean_r, mean_c)] = 255
 
 zeros[coords[100]] = 255
