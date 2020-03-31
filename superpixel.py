@@ -122,12 +122,9 @@ def get_coordinates(labeled_image, masks, length):
     """
     coordinates = dict()
     adjacency = set()
-    mascara = masks == 255
-    #for i in range(0, length):
-    #    adjacency[i] = list()
-    for i in np.arange(512):
-        for j in np.arange(512):
-            if (mascara[i, j] == True) and (i > 0) and (i < 511) and (j > 0) and (j < 511):
+    for i in np.arange(labeled_image.shape[0]):
+        for j in np.arange(labeled_image.shape[1]):
+            if (masks[i, j] == 255) and (i > 0) and (i < (labeled_image.shape[0] - 1)) and (j > 0) and (j < (labeled_image.shape[1] - 1)):
                 if labeled_image[i+1, j] != labeled_image[i-1, j]:
                     adjacency.add((labeled_image[i+1, j], labeled_image[i-1, j]))
                 #if labeled_image[i-1, j] !=  labeled_image[i+1, j]:
