@@ -272,40 +272,41 @@ def kmeans(samples, k):
 def return_superpixels(image, info=False):
     """
     Retorna uma tupla com os superpixels da imagem e suas adjacências.
+
+    @param image: numpy.array() - imagem a ser segmentada.
+    @param info: boolean() - indica se um arquivo e uma imagem com informações 
+        sobre os superpixels serão gerados.
+    @return pixel: dict() - dicionário com os superpixels gerados, a quantidade de 
+        chaves do dicionário é equivalente ao número de superpixels gerados.
+    @return adjacency: list() - lista de adjacência dos superpixels.
     """
     #p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
     #image_ = np.copy(p)
-    image_ = cv2.imread("./outputs/saida1.png", 0)
-    s_slic = cv2.ximgproc.createSuperpixelLSC(image_, 40)
-    s_slic.iterate(20)
-    masks = s_slic.getLabelContourMask()
+    image_ = np.copy(p)
+    superpixels = cv2.ximgproc.createSuperpixelLSC(image_, 40)
+    superpixels.iterate(20)
+    masks = superpixels.getLabelContourMask()
     image_[masks == 255] = 255
-    labels = s_slic.getLabels()
-    coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=s_slic.getNumberOfSuperpixels())
+    labels = superpixels.getLabels()
+    number_spixels = superpixels.getNumberOfSuperpixels()
+    coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=number_spixels)
     if info:
         arquivo = open("./outputs/superpixels-info.txt","w")
-    pixels = dict()
+    spixels = dict()
     for key in coordinates:
-        rows = np.array(coordinates[key][0])
-        columns = np.array(coordinates[key][1])
-        max_r = np.max(rows)
-        min_r = np.min(rows)
-        max_c = np.max(columns)
-        min_c = np.min(columns)
-        centroid = ((((max_r - min_r)//2) + min_r), (((max_c - min_c)//2) + min_c))
+        mean_r = int(np.mean(coordinates[key][0]))
+        mean_c = int(np.mean(coordinates[key][1]))
+        centroid = (mean_r, mean_c)
         color_mean = np.mean(image_[coordinates[key]])
-        cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.4,255)
-        #if color_mean < 10:
-        #    image_[coordinates[key]] = 255
-        #if i in [66, 70, 73, 74, 80, 84,90, 95, 100, 105, 106]:
-        #    image_[coordinates[key]] = 255
         if info:
+            cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.2,255)
+            cv2.imwrite("./outputs/saida-superpixels.png", image_)
             arquivo.write("Superpixel {0}\n\tCentroid: {1}\n\tColor mean: {2}\n".format(key,centroid, color_mean))
-        pixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
+        spixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
     if info:
         arquivo.close()
     #cv2.imwrite("./outputs/saida-seg.png", image_)
-    return pixels, adjacency
+    return spixels, adjacency
 
     
 
