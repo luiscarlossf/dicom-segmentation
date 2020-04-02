@@ -117,31 +117,37 @@ def get_coordinates(labeled_image, masks, length):
     """
     Retorna as coordenadas de cada rótulo na imagem
     De modo que rótulo 1:
-    {1: lits() com as coordenadas no eixo x e uma outra lista do eixo y}
-    :return coordinates: dict() com coordenadas de cada superpixel
+    coordinates = {1: list() com as coordenadas no eixo x e uma outra list() do eixo y}
+    adjacency = {1: set() com os rótulos dos superpixels adjacentes a 1}
+
+    @param labeled_image: numpy.array() - imagem rotulada  por superpixels.
+    @param masks: numpy.array() - mascará das bordas dos superpixels. 
+    @param length: int() - quantidade de superpixels na imagem rotulada
+    @return (coordinates, adjacency): dict(), dict() - dicionários com coordenadas 
+        adjacências de cada superpixel, respectivamente.
     """
     coordinates = dict()
-    adjacency = set()
+    adjacency = dict()
+    for i in range(length):
+        adjacency[i] = set()
     for i in np.arange(labeled_image.shape[0]):
         for j in np.arange(labeled_image.shape[1]):
             if (masks[i, j] == 255) and (i > 0) and (i < (labeled_image.shape[0] - 1)) and (j > 0) and (j < (labeled_image.shape[1] - 1)):
                 if labeled_image[i+1, j] != labeled_image[i-1, j]:
-                    adjacency.add((labeled_image[i+1, j], labeled_image[i-1, j]))
-                #if labeled_image[i-1, j] !=  labeled_image[i+1, j]:
-                #    adjacency.add((labeled_image[i-1, j], labeled_image[i+1, j]))
+                    adjacency[labeled_image[i+1, j]].add(labeled_image[i-1, j])
+                    adjacency[labeled_image[i-1, j]].add(labeled_image[i+1, j])
+
                 if labeled_image[i, j+1] != labeled_image[i, j-1]:
-                    adjacency.add((labeled_image[i, j+1], labeled_image[i, j-1]))
-                #if labeled_image[i, j-1] !=  labeled_image[i, j+1]:
-                #    adjacency.add((labeled_image[i, j-1], labeled_image[i, j+1]))
+                    adjacency[labeled_image[i, j+1]].add(labeled_image[i, j-1])
+                    adjacency[labeled_image[i, j-1]].add(labeled_image[i, j+1])
+
                 if labeled_image[i+1, j-1] != labeled_image[i-1, j+1]:
-                    adjacency.add((labeled_image[i+1, j-1],labeled_image[i-1, j+1]))
-                #if labeled_image[i-1, j+1]!= labeled_image[i+1, j-1]:
-                #    adjacency.add((labeled_image[i-1, j+1], labeled_image[i+1, j-1]))
+                    adjacency[labeled_image[i+1, j-1]].add(labeled_image[i-1, j+1])
+                    adjacency[labeled_image[i-1, j+1]].add(labeled_image[i+1, j-1])
+
                 if labeled_image[i+1, j+1] != labeled_image[ i-1, j-1]:
-                    adjacency.add((labeled_image[i+1, j+1], labeled_image[ i-1, j-1]))
-                #if labeled_image[ i-1, j-1] != labeled_image[i+1, j+1]:
-                #    adjacency.add((labeled_image[ i-1, j-1], labeled_image[i+1, j+1]))
-                
+                    adjacency[labeled_image[i+1, j+1]].add(labeled_image[ i-1, j-1])
+                    adjacency[labeled_image[i-1, j-1]].add(labeled_image[ i+1, j+1])
     
             try:
                 coordinates[labeled_image[i, j]][0].append(i)
@@ -150,7 +156,8 @@ def get_coordinates(labeled_image, masks, length):
                 coordinates[labeled_image[i, j]] = [list(), list()]
                 coordinates[labeled_image[i, j]][0].append(i)
                 coordinates[labeled_image[i, j]][1].append(j)
-    return coordinates , list(adjacency)
+                
+    return coordinates , adjacency
 
 class Group:
     def __init__(self, center):
@@ -278,15 +285,15 @@ def return_superpixels(image, info=False):
         sobre os superpixels serão gerados.
     @return pixel: dict() - dicionário com os superpixels gerados, a quantidade de 
         chaves do dicionário é equivalente ao número de superpixels gerados.
-    @return adjacency: list() - lista de adjacência dos superpixels.
+    @return adjacency: dict() - dicionário de adjacência dos superpixels.
     """
     #p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
     #image_ = np.copy(p)
-    image_ = np.copy(p)
+    image_ = np.copy(image)
     superpixels = cv2.ximgproc.createSuperpixelLSC(image_, 40)
     superpixels.iterate(20)
     masks = superpixels.getLabelContourMask()
-    image_[masks == 255] = 255
+    image_[masks == 255] = 123
     labels = superpixels.getLabels()
     number_spixels = superpixels.getNumberOfSuperpixels()
     coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=number_spixels)
@@ -299,7 +306,7 @@ def return_superpixels(image, info=False):
         centroid = (mean_r, mean_c)
         color_mean = np.mean(image_[coordinates[key]])
         if info:
-            cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.2,255)
+            cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.3,123)
             cv2.imwrite("./outputs/saida-superpixels.png", image_)
             arquivo.write("Superpixel {0}\n\tCentroid: {1}\n\tColor mean: {2}\n".format(key,centroid, color_mean))
         spixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
