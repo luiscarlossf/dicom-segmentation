@@ -14,7 +14,7 @@ def cut(graph):
     w = nx.to_numpy_array(graph)
     result = np.linalg.eigh(d-w)
     eignvector = result[1][:,1]
-    print("The second smallest eignvalue: {0}\nEignvector: {1}".format(result[0][1], eignvector))
+    #print("The second smallest eignvalue: {0}\nEignvector: {1}".format(result[0][1], eignvector))
     if ((eignvector < 0).all() or (eignvector >= 0).all()) or (len(graph.nodes) == 2):
         return list(graph.nodes)
     else:
@@ -22,9 +22,6 @@ def cut(graph):
         sub2 = graph.copy()
         sub1.remove_nodes_from(np.array(list(graph.nodes))[(eignvector < 0)])
         sub2.remove_nodes_from(np.array(list(graph.nodes))[(eignvector >= 0)])
-        print(sub1.edges)
-        print(sub2.edges)
-        input()
         return [cut(sub1), cut(sub2)]
     
     
