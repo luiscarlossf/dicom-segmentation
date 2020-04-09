@@ -1,2 +1,2 @@
 # DICOM Segmentation
-Segmentation of medical images with Watersheed Method using Python.
+Segmentation of CT(Computed Tomography) medical images.
