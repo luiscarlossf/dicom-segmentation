@@ -3,49 +3,49 @@ Superpixel 0
 	Color mean: 5.590909090909091
 Superpixel 13
 	Centroid: (20, 64)
-	Color mean: 5.335616438356165
+	Color mean: 5.323462414578588
 Superpixel 26
-	Centroid: (16, 108)
-	Color mean: 4.018577834721333
+	Centroid: (17, 108)
+	Color mean: 4.094750320102433
 Superpixel 39
 	Centroid: (20, 151)
-	Color mean: 4.944383259911894
+	Color mean: 4.475192943770672
 Superpixel 52
 	Centroid: (22, 193)
-	Color mean: 7.070429829104091
+	Color mean: 7.006732263076127
 Superpixel 65
 	Centroid: (16, 236)
 	Color mean: 3.9575289575289574
 Superpixel 78
 	Centroid: (23, 280)
-	Color mean: 6.904365904365904
+	Color mean: 6.90795631825273
 Superpixel 91
 	Centroid: (19, 322)
 	Color mean: 5.663518299881936
 Superpixel 104
 	Centroid: (17, 364)
-	Color mean: 3.893410852713178
+	Color mean: 3.8959276018099547
 Superpixel 117
 	Centroid: (22, 406)
-	Color mean: 6.689822294022617
+	Color mean: 6.697035040431267
 Superpixel 130
 	Centroid: (17, 448)
-	Color mean: 4.520309477756286
+	Color mean: 4.626459143968872
 Superpixel 143
 	Centroid: (20, 490)
-	Color mean: 4.51310425160163
+	Color mean: 4.444055944055944
 Superpixel 27
 	Centroid: (53, 108)
-	Color mean: 3.8810679611650487
+	Color mean: 4.430402930402931
 Superpixel 66
 	Centroid: (52, 236)
-	Color mean: 4.349565217391304
+	Color mean: 4.270833333333333
 Superpixel 105
 	Centroid: (54, 365)
 	Color mean: 3.809410363311495
 Superpixel 131
 	Centroid: (54, 447)
-	Color mean: 3.962917933130699
+	Color mean: 3.938972809667674
 Superpixel 92
 	Centroid: (59, 321)
 	Color mean: 5.483634311512415
@@ -57,22 +57,22 @@ Superpixel 14
 	Color mean: 5.107266435986159
 Superpixel 144
 	Centroid: (60, 490)
-	Color mean: 5.070671378091872
+	Color mean: 5.1431095406360425
 Superpixel 40
 	Centroid: (63, 151)
-	Color mean: 4.958034235229155
+	Color mean: 5.017640573318633
 Superpixel 53
 	Centroid: (68, 193)
-	Color mean: 5.913461538461538
+	Color mean: 5.791332263242376
 Superpixel 79
 	Centroid: (68, 279)
-	Color mean: 6.0372168284789645
+	Color mean: 6.1167567567567565
 Superpixel 118
 	Centroid: (68, 406)
-	Color mean: 5.916808149405773
+	Color mean: 5.920158550396376
 Superpixel 28
 	Centroid: (91, 109)
-	Color mean: 3.9563469270534175
+	Color mean: 3.9450171821305844
 Superpixel 67
 	Centroid: (92, 236)
 	Color mean: 4.720090293453724
@@ -81,376 +81,376 @@ Superpixel 106
 	Color mean: 3.8879310344827585
 Superpixel 132
 	Centroid: (94, 447)
-	Color mean: 3.8616279069767443
+	Color mean: 3.870629370629371
 Superpixel 2
 	Centroid: (100, 21)
 	Color mean: 5.734265734265734
 Superpixel 15
 	Centroid: (100, 65)
-	Color mean: 5.035087719298246
+	Color mean: 4.9747948417350525
 Superpixel 93
 	Centroid: (100, 321)
-	Color mean: 5.5656108597285066
+	Color mean: 5.638370118845501
 Superpixel 145
 	Centroid: (100, 489)
-	Color mean: 5.001178550383029
+	Color mean: 4.998233215547703
 Superpixel 41
 	Centroid: (107, 152)
-	Color mean: 4.361702127659575
+	Color mean: 4.42639040348964
 Superpixel 119
 	Centroid: (111, 406)
-	Color mean: 5.511627906976744
+	Color mean: 5.530449630051224
 Superpixel 54
 	Centroid: (113, 193)
-	Color mean: 5.850810810810811
+	Color mean: 5.857142857142857
 Superpixel 80
 	Centroid: (112, 279)
-	Color mean: 5.486233480176211
+	Color mean: 5.415520088057237
 Superpixel 29
 	Centroid: (132, 112)
-	Color mean: 3.788933257273246
+	Color mean: 3.7846153846153845
 Superpixel 68
 	Centroid: (132, 237)
-	Color mean: 4.985524030110017
+	Color mean: 4.988412514484357
 Superpixel 133
-	Centroid: (136, 449)
-	Color mean: 3.395492957746479
+	Centroid: (135, 449)
+	Color mean: 3.5320945945945947
 Superpixel 107
 	Centroid: (137, 364)
 	Color mean: 3.4018438177874186
 Superpixel 16
 	Centroid: (137, 67)
-	Color mean: 4.905135951661632
+	Color mean: 4.9824667472793225
 Superpixel 3
 	Centroid: (139, 22)
 	Color mean: 4.961344537815126
 Superpixel 146
 	Centroid: (139, 491)
-	Color mean: 5.324341279799247
+	Color mean: 5.243887147335423
 Superpixel 94
 	Centroid: (142, 321)
 	Color mean: 5.263513513513513
 Superpixel 42
 	Centroid: (153, 152)
-	Color mean: 3.471774193548387
+	Color mean: 3.477031802120141
 Superpixel 120
 	Centroid: (151, 407)
-	Color mean: 4.955502104630186
+	Color mean: 4.961468994581577
 Superpixel 55
 	Centroid: (156, 197)
-	Color mean: 5.7319078947368425
+	Color mean: 5.789819376026273
 Superpixel 81
 	Centroid: (155, 281)
-	Color mean: 4.934302325581395
+	Color mean: 4.78849506101104
 Superpixel 69
 	Centroid: (170, 243)
-	Color mean: 6.066584463625154
+	Color mean: 6.062846580406655
 Superpixel 30
 	Centroid: (173, 104)
-	Color mean: 3.2017353579175705
+	Color mean: 3.0016268980477223
 Superpixel 17
 	Centroid: (174, 59)
-	Color mean: 5.637173774665818
+	Color mean: 5.480585614258434
 Superpixel 134
 	Centroid: (178, 442)
-	Color mean: 4.490587564175699
+	Color mean: 4.695726495726496
 Superpixel 147
 	Centroid: (178, 488)
-	Color mean: 2.372093023255814
+	Color mean: 2.370748299319728
 Superpixel 4
 	Centroid: (179, 19)
-	Color mean: 5.6464019851116625
+	Color mean: 5.66044776119403
 Superpixel 108
 	Centroid: (178, 364)
-	Color mean: 250.75208581644816
+	Color mean: 250.7470167064439
 Superpixel 95
-	Centroid: (185, 323)
-	Color mean: 249.1978021978022
+	Centroid: (185, 324)
+	Color mean: 249.19425778863774
 Superpixel 121
 	Centroid: (194, 399)
-	Color mean: 248.8568935427574
+	Color mean: 249.31431897555296
 Superpixel 82
-	Centroid: (195, 285)
-	Color mean: 248.68285714285713
+	Centroid: (195, 286)
+	Color mean: 248.60228082679973
 Superpixel 43
-	Centroid: (195, 145)
-	Color mean: 249.13494240263302
+	Centroid: (195, 146)
+	Color mean: 248.8909090909091
 Superpixel 56
 	Centroid: (195, 195)
-	Color mean: 250.84305627258647
+	Color mean: 250.8622816032888
 Superpixel 70
 	Centroid: (209, 244)
-	Color mean: 247.76614215952253
+	Color mean: 247.76221498371336
 Superpixel 18
 	Centroid: (210, 68)
-	Color mean: 3.85250569476082
+	Color mean: 3.78030734206033
 Superpixel 31
 	Centroid: (221, 108)
-	Color mean: 250.16268739589117
+	Color mean: 250.33774834437085
 Superpixel 135
 	Centroid: (216, 461)
-	Color mean: 3.6295081967213116
+	Color mean: 3.465923984272608
 Superpixel 148
 	Centroid: (219, 495)
-	Color mean: 4.952415812591508
+	Color mean: 5.035087719298246
 Superpixel 5
 	Centroid: (218, 21)
-	Color mean: 4.3445280833815865
+	Color mean: 4.349565217391304
 Superpixel 122
 	Centroid: (226, 420)
-	Color mean: 250.70897832817337
+	Color mean: 250.50927835051547
 Superpixel 109
-	Centroid: (222, 364)
-	Color mean: 4.810055865921788
+	Centroid: (222, 363)
+	Color mean: 3.2962779156327544
 Superpixel 83
-	Centroid: (222, 306)
-	Color mean: 6.447243022464262
+	Centroid: (223, 307)
+	Color mean: 5.951612903225806
 Superpixel 44
 	Centroid: (233, 159)
-	Color mean: 3.2260044642857144
+	Color mean: 3.4986056887897377
 Superpixel 57
-	Centroid: (234, 202)
-	Color mean: 5.332369942196531
-Superpixel 96
-	Centroid: (247, 333)
-	Color mean: 5.384093711467324
+	Centroid: (234, 203)
+	Color mean: 5.267361111111111
 Superpixel 84
 	Centroid: (252, 281)
-	Color mean: 251.732368052312
+	Color mean: 251.5770862800566
 Superpixel 19
 	Centroid: (251, 50)
-	Color mean: 4.203094777562863
+	Color mean: 4.268637532133676
+Superpixel 96
+	Centroid: (252, 332)
+	Color mean: 6.608955223880597
 Superpixel 71
 	Centroid: (254, 235)
-	Color mean: 249.68687924725563
+	Color mean: 249.76409185803757
 Superpixel 45
 	Centroid: (262, 135)
-	Color mean: 8.180863477246207
+	Color mean: 8.262266355140186
 Superpixel 32
 	Centroid: (261, 91)
-	Color mean: 250.82402372713793
-Superpixel 149
-	Centroid: (258, 486)
-	Color mean: 3.740954378605139
+	Color mean: 250.8363725973386
 Superpixel 136
 	Centroid: (261, 435)
-	Color mean: 250.30409356725147
+	Color mean: 250.24671532846716
+Superpixel 149
+	Centroid: (258, 486)
+	Color mean: 3.6687598116169546
 Superpixel 6
 	Centroid: (261, 16)
-	Color mean: 4.957609451007644
+	Color mean: 4.872133425990271
 Superpixel 110
-	Centroid: (266, 378)
-	Color mean: 8.861137897782063
+	Centroid: (266, 379)
+	Color mean: 4.2609699769053115
 Superpixel 58
 	Centroid: (280, 182)
-	Color mean: 4.826792963464141
+	Color mean: 4.777777777777778
 Superpixel 97
-	Centroid: (286, 326)
-	Color mean: 7.458510638297873
+	Centroid: (288, 325)
+	Color mean: 12.472287735849056
 Superpixel 20
-	Centroid: (295, 70)
-	Color mean: 247.3186440677966
+	Centroid: (295, 69)
+	Color mean: 247.38030560271648
 Superpixel 85
-	Centroid: (294, 259)
-	Color mean: 250.62820512820514
+	Centroid: (293, 261)
+	Color mean: 250.31815775542614
 Superpixel 124
 	Centroid: (298, 409)
-	Color mean: 247.01152737752162
+	Color mean: 247.0230215827338
 Superpixel 72
 	Centroid: (298, 216)
-	Color mean: 246.54679802955664
+	Color mean: 246.76997578692493
 Superpixel 7
 	Centroid: (299, 24)
-	Color mean: 3.7826755509994876
+	Color mean: 3.7311053984575837
 Superpixel 98
-	Centroid: (309, 298)
-	Color mean: 246.75895765472313
+	Centroid: (312, 298)
+	Color mean: 245.54545454545453
 Superpixel 150
 	Centroid: (297, 484)
-	Color mean: 3.817899637868598
+	Color mean: 3.827800829875519
 Superpixel 137
 	Centroid: (303, 441)
-	Color mean: 249.3149394347241
+	Color mean: 249.4
 Superpixel 46
 	Centroid: (301, 136)
-	Color mean: 3.8150488225157955
+	Color mean: 3.671641791044776
 Superpixel 111
-	Centroid: (309, 366)
-	Color mean: 4.497805948317894
+	Centroid: (310, 365)
+	Color mean: 2.7748896517900934
 Superpixel 34
 	Centroid: (318, 105)
-	Color mean: 247.87829360100378
+	Color mean: 247.7218045112782
 Superpixel 47
 	Centroid: (331, 160)
-	Color mean: 4.014836795252226
+	Color mean: 4.07566765578635
 Superpixel 73
 	Centroid: (329, 219)
-	Color mean: 7.967611336032388
+	Color mean: 4.98207171314741
 Superpixel 138
-	Centroid: (343, 454)
-	Color mean: 6.560920830993823
+	Centroid: (344, 454)
+	Color mean: 6.749160134378499
 Superpixel 151
 	Centroid: (333, 492)
-	Color mean: 3.3687374749498997
+	Color mean: 3.4302788844621515
 Superpixel 99
-	Centroid: (340, 331)
-	Color mean: 4.021047917599642
+	Centroid: (340, 330)
+	Color mean: 5.440492476060191
 Superpixel 125
 	Centroid: (340, 403)
-	Color mean: 250.73012939001848
+	Color mean: 251.52471131639723
 Superpixel 8
 	Centroid: (338, 27)
-	Color mean: 4.120197044334976
+	Color mean: 4.266600594648167
 Superpixel 21
-	Centroid: (339, 73)
-	Color mean: 251.09371146732428
+	Centroid: (340, 73)
+	Color mean: 251.1891891891892
 Superpixel 86
-	Centroid: (341, 264)
-	Color mean: 250.3279569892473
+	Centroid: (341, 263)
+	Color mean: 251.65283540802213
 Superpixel 60
 	Centroid: (353, 190)
-	Color mean: 5.250970245795601
+	Color mean: 6.921733505821475
 Superpixel 35
 	Centroid: (363, 111)
-	Color mean: 251.04426002766252
+	Color mean: 250.9281767955801
 Superpixel 113
-	Centroid: (373, 368)
-	Color mean: 250.48554913294797
-Superpixel 74
-	Centroid: (381, 237)
-	Color mean: 250.36633663366337
+	Centroid: (374, 368)
+	Color mean: 250.1087584215592
 Superpixel 48
 	Centroid: (382, 149)
-	Color mean: 249.31716621253406
+	Color mean: 249.44590163934427
+Superpixel 74
+	Centroid: (382, 237)
+	Color mean: 248.61969904240766
 Superpixel 22
-	Centroid: (384, 62)
-	Color mean: 5.5065392354124745
-Superpixel 126
-	Centroid: (376, 418)
-	Color mean: 3.887693342299933
-Superpixel 9
-	Centroid: (374, 19)
-	Color mean: 4.077348066298343
+	Centroid: (384, 61)
+	Color mean: 5.60506329113924
 Superpixel 87
 	Centroid: (382, 284)
-	Color mean: 250.23333333333332
+	Color mean: 251.88283378746593
+Superpixel 126
+	Centroid: (376, 418)
+	Color mean: 4.356948228882834
+Superpixel 9
+	Centroid: (374, 19)
+	Color mean: 3.962825278810409
 Superpixel 152
 	Centroid: (373, 491)
-	Color mean: 3.6065974343310936
+	Color mean: 3.5978062157221204
 Superpixel 100
 	Centroid: (385, 327)
-	Color mean: 246.5481520041645
+	Color mean: 246.5349322210636
 Superpixel 61
 	Centroid: (388, 193)
-	Color mean: 246.67495451788963
+	Color mean: 246.5642118076689
 Superpixel 139
 	Centroid: (391, 453)
-	Color mean: 5.531542785758901
+	Color mean: 5.507462686567164
 Superpixel 36
-	Centroid: (409, 104)
-	Color mean: 5.570300157977883
+	Centroid: (409, 103)
+	Color mean: 4.943110647181628
 Superpixel 127
-	Centroid: (409, 402)
-	Color mean: 5.870144284128746
+	Centroid: (410, 403)
+	Color mean: 5.80716723549488
 Superpixel 10
 	Centroid: (414, 22)
-	Color mean: 3.682634730538922
+	Color mean: 3.6582491582491583
 Superpixel 153
 	Centroid: (415, 490)
-	Color mean: 3.5886727688787183
-Superpixel 49
-	Centroid: (423, 148)
-	Color mean: 6.136210762331839
+	Color mean: 3.7162322274881516
 Superpixel 114
-	Centroid: (424, 364)
-	Color mean: 4.797074954296161
+	Centroid: (422, 366)
+	Color mean: 5.837566844919786
+Superpixel 49
+	Centroid: (422, 149)
+	Color mean: 4.7362068965517246
 Superpixel 62
-	Centroid: (425, 195)
-	Color mean: 7.306228373702422
+	Centroid: (423, 199)
+	Color mean: 5.500621118012423
 Superpixel 101
-	Centroid: (424, 323)
-	Color mean: 5.771718452758402
+	Centroid: (424, 326)
+	Color mean: 6.368085106382979
 Superpixel 23
-	Centroid: (412, 69)
-	Color mean: 207.9655172413793
+	Centroid: (411, 65)
+	Color mean: 213.0
 Superpixel 75
-	Centroid: (424, 239)
-	Color mean: 3.6597671410090555
-Superpixel 140
-	Centroid: (411, 437)
-	Color mean: 215.47904191616766
+	Centroid: (425, 244)
+	Color mean: 5.709864603481625
 Superpixel 88
-	Centroid: (431, 281)
-	Color mean: 5.777170944838886
+	Centroid: (425, 286)
+	Color mean: 5.066171505739366
+Superpixel 140
+	Centroid: (410, 438)
+	Color mean: 214.21951219512195
 Superpixel 24
-	Centroid: (437, 64)
-	Color mean: 4.347193347193347
+	Centroid: (435, 62)
+	Color mean: 5.017640573318633
 Superpixel 141
-	Centroid: (436, 446)
-	Color mean: 4.153246753246753
-Superpixel 76
-	Centroid: (460, 246)
-	Color mean: 3.6433649289099526
+	Centroid: (435, 448)
+	Color mean: 4.628666297731046
 Superpixel 37
-	Centroid: (452, 105)
-	Color mean: 3.4092391304347824
+	Centroid: (451, 98)
+	Color mean: 3.958283671036949
 Superpixel 128
-	Centroid: (454, 406)
-	Color mean: 3.9655737704918033
+	Centroid: (452, 412)
+	Color mean: 4.568985849056604
+Superpixel 63
+	Centroid: (456, 180)
+	Color mean: 3.100189035916824
 Superpixel 11
 	Centroid: (454, 22)
-	Color mean: 4.533003300330033
-Superpixel 154
-	Centroid: (455, 487)
-	Color mean: 4.5131434830230015
-Superpixel 102
-	Centroid: (462, 313)
-	Color mean: 5.271428571428571
+	Color mean: 4.203361344537815
 Superpixel 50
-	Centroid: (461, 151)
-	Color mean: 4.206367924528302
-Superpixel 115
-	Centroid: (462, 360)
-	Color mean: 4.523049645390071
-Superpixel 63
-	Centroid: (463, 197)
-	Color mean: 4.288204532248693
+	Centroid: (458, 137)
+	Color mean: 6.747521480502313
+Superpixel 154
+	Centroid: (455, 488)
+	Color mean: 4.357714285714286
+Superpixel 76
+	Centroid: (458, 225)
+	Color mean: 5.823863636363637
 Superpixel 89
-	Centroid: (489, 279)
-	Color mean: 3.672603457307491
+	Centroid: (460, 273)
+	Color mean: 5.765625
+Superpixel 102
+	Centroid: (458, 322)
+	Color mean: 5.983374384236453
+Superpixel 115
+	Centroid: (458, 369)
+	Color mean: 5.272552783109405
 Superpixel 25
-	Centroid: (487, 69)
-	Color mean: 1.4157458563535912
+	Centroid: (486, 63)
+	Color mean: 1.653061224489796
 Superpixel 142
-	Centroid: (487, 441)
-	Color mean: 0.6877912395153775
-Superpixel 38
-	Centroid: (493, 118)
-	Color mean: 3.3944805194805197
-Superpixel 77
-	Centroid: (494, 226)
-	Color mean: 6.722981366459627
-Superpixel 129
-	Centroid: (494, 391)
-	Color mean: 2.6652221018418203
-Superpixel 116
-	Centroid: (496, 335)
-	Color mean: 6.667729591836735
-Superpixel 12
-	Centroid: (492, 23)
-	Color mean: 2.1903171953255427
-Superpixel 51
-	Centroid: (496, 170)
-	Color mean: 9.211212516297262
-Superpixel 155
-	Centroid: (493, 488)
-	Color mean: 2.1243523316062176
-Superpixel 103
-	Centroid: (493, 330)
-	Color mean: 218.64406779661016
+	Centroid: (486, 448)
+	Color mean: 0.8799182422074604
 Superpixel 64
-	Centroid: (495, 192)
-	Color mean: 206.66929133858267
+	Centroid: (493, 196)
+	Color mean: 0.8606870229007634
+Superpixel 38
+	Centroid: (492, 107)
+	Color mean: 3.1910377358490565
+Superpixel 51
+	Centroid: (493, 152)
+	Color mean: 4.9478315524827154
+Superpixel 77
+	Centroid: (493, 239)
+	Color mean: 4.4302554027504915
+Superpixel 129
+	Centroid: (492, 406)
+	Color mean: 2.452567975830816
+Superpixel 12
+	Centroid: (493, 21)
+	Color mean: 2.2486288848263256
 Superpixel 90
-	Centroid: (500, 263)
-	Color mean: 219.624
+	Centroid: (494, 281)
+	Color mean: 3.6125874125874127
+Superpixel 116
+	Centroid: (493, 363)
+	Color mean: 2.8509933774834435
+Superpixel 155
+	Centroid: (493, 490)
+	Color mean: 2.1660377358490566
+Superpixel 103
+	Centroid: (493, 321)
+	Color mean: 2.962835512732278

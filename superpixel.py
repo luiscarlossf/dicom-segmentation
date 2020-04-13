@@ -5,6 +5,7 @@ import pydicom
 import numpy as np
 from random import choices
 from skimage.measure import regionprops
+from skimage.morphology import opening
 import time
 
 path = "C:/Users/luisc/Documents/dicom-database/LCTSC/LCTSC-Test-S1-101"
@@ -287,9 +288,13 @@ def return_superpixels(image, info=False):
         chaves do dicionário é equivalente ao número de superpixels gerados.
     @return adjacency: dict() - dicionário de adjacência dos superpixels.
     """
-    #p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
-    #image_ = np.copy(p)
-    image_ = np.copy(image)
+    p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
+    image_ = np.copy(p).astype(np.uint8)
+    retval = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
+    s1 = cv2.morphologyEx(image_, cv2.MORPH_CLOSE,retval)
+    retval = cv2.getStructuringElement(cv2.MORPH_CROSS, (5,5))
+    image_ = cv2.morphologyEx(s1, cv2.MORPH_OPEN, retval)
+    #image_ = np.copy(image)
     superpixels = cv2.ximgproc.createSuperpixelLSC(image_, 40)
     superpixels.iterate(20)
     masks = superpixels.getLabelContourMask()
