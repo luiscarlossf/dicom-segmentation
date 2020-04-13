@@ -3,6 +3,21 @@ import numpy as np
 from superpixel import get_coordinates, return_superpixels
 import math
 import networkx as nx
+import pydicom
+
+def show(pixel_array):
+    """
+    Exibe a imagem a partir de um array de pixels.
+
+    :param pixel_array: numpy array com os pixels da imagem.
+    :return:
+    """
+    print("Show was called.")
+    cv2.imshow('image', pixel_array)
+    k = cv2.waitKey(0)
+    if k == 27:         # wait for ESC key to exit
+        cv2.destroyAllWindows()
+
 
 image = cv2.imread("./outputs/saida1.png", 0)
 g = nx.Graph()
@@ -66,6 +81,7 @@ def test2():
         print("{0}: {1}".format(key, adjacencies[key]))
 
     cv2.imwrite("./outputs/test.png", image_)
+
 def test3(graph):
     number = len(graph.keys())
     d = list()
@@ -97,11 +113,34 @@ def test3(graph):
     d = np.diag(d)
     result = np.linalg.eigh(d-w)
     print("The second smallest eignvalue: {0}\nEignvector: {1}".format(result[0][1], result[1][:, 1]))
-               
+
+def test4(center=None, window=None):
+    dataset = pydicom.dcmread('./outputs/000075.dcm')
+    pixel_array = np.copy(dataset.pixel_array)
+    if dataset.RescaleType == 'HU': #O que fazer quando não tem Rescale
+        c = center if center else dataset.WindowCenter #center level
+        w = window if window else dataset.WindowWidth #window width
+        pixel_array = int(dataset.RescaleSlope) * pixel_array + int(dataset.RescaleIntercept)
+        condition1 = pixel_array <= (c- 0.5 - (w - 1)/ 2)
+        condition2 = pixel_array > (c- 0.5 + (w - 1)/2)
+        pixel_array = np.piecewise(pixel_array, [condition1, condition2], [0,255, lambda pixel_array: ((pixel_array - (c - 0.5))/(w-1)+0.5) * (255 - 0)]).astype(np.uint8)
+    
+    #pixel_array = cv2.GaussianBlur(pixel_array, (5,5), 0.8)
+    
+    #show(pixel_array)
+    #pixel_array[pixel_array > 30]= 255
+    #retval = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
+    #pixel_array = cv2.morphologyEx(pixel_array, cv2.MORPH_CLOSE,retval)
+    #superpixels = cv2.ximgproc.createSuperpixelLSC(pixel_array, region_size=40)
+    superpixels = cv2.ximgproc.createSuperpixelSEEDS(pixel_array.shape[0], pixel_array.shape[1], image_channels=1, num_superpixels=250, num_levels=20)
+    superpixels.iterate(pixel_array, 20)
+    masks = superpixels.getLabelContourMask()
+    pixel_array[masks == 255] = 255
+    labels = superpixels.getLabels()
+    number_spixels = superpixels.getNumberOfSuperpixels()
+
+    show(pixel_array)
+
 if __name__ == "__main__":
-    #test3(graph)
-    sub1 = g.subgraph([1,2,3,4])
-    sub2 = g.subgraph([5,6])
-    print("First graph")
-    print(g.nodes[1]['info']['color'])
-    print(g.edges.data())
+    test4(-500, 1500)
+    
