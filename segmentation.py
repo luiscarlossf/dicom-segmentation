@@ -1,4 +1,5 @@
 from superpixel import return_superpixels
+from graphcut import cut
 import cv2
 import networkx as nx
 import matplotlib.pyplot as plt 
@@ -22,37 +23,27 @@ if __name__ == "__main__":
     input()
     """
     
-    sp, adjacency = return_superpixels(image)
+    sp, adjacency = return_superpixels(image, info=True)
     #g.add_nodes_from(list(sp.keys()))
     
-    nodes_r = list()
-    nodes_b = list()
-    labels = {}
+    
     for key in sp.keys():
-        if sp[key]['color'] < 15 :
-            g.add_node(key, info=sp[key], flag=False, color='red')
-            nodes_r.append(key)
-            labels[key] = key
-        else:
-            #g.add_node(key, info=sp[key], flag=False)
-            nodes_b.append(key)
-        #labels[key] = key
+        g.add_node(key, info=sp[key], color='red')
 
-    for t in adjacency:
-        if (t[0] not in nodes_r) or (t[1] not in nodes_r):
-            continue
-        color1 = sp[t[0]]['color']
-        color2 = sp[t[1]]['color']
-        mean = (color1 + color2)/2
-        soma = ((color1 - mean)**2) + ((color2 - mean)**2) + 0.1
-        weight = math.exp(-(abs(color1 - color2) * abs(color1 - color2))/(math.sqrt(soma/2)))
-        if weight <= 1.5:
-            g.add_edge(t[0], t[1], weight=weight)
-    #g.add_edges_from(list(adjacency))
-    pos = nx.circular_layout(g)
-    plt.subplot(121)
-    nx.draw_networkx_nodes(g, pos=pos, nodelist=nodes_r, node_color='red')
-   # nx.draw_networkx_nodes(g, pos=pos, nodelist=nodes_b, node_color='b')
-    nx.draw_networkx_edges(g, pos=pos, edgelist=list(g.edges))
-    nx.draw_networkx_labels(g, pos, labels)
+    for i in adjacency:
+        for j in adjacency[i]:
+            g.add_edge(i, j)
+            color1 = g.nodes[i]['info']['color']
+            color2 = g.nodes[j]['info']['color']
+            mean = (color1 + color2)/2
+            soma = ((color1 - mean)**2) + ((color2 - mean)**2)
+            p1 = (color1 - color2) ** 2
+            p2 = p1 / ((math.sqrt(soma/2)**2) + 1e-5)
+            d1 = g.nodes[i]['info']['centroid']
+            d2 = g.nodes[j]['info']['centroid']
+            p3 = math.sqrt((((d1[0]-d2[0])**2)+((d1[1]-d2[1])**2)))
+            g[i][j]['weight'] =  math.exp(-(p2)) * math.exp(-p3) #math.exp(-(abs(color1 - color2) * abs(color1 - color2))/(2*((math.sqrt(soma/2))**2))) 
+
+    print(cut(g))
+    nx.draw(g, with_labels=True, font_weight='bold')
     plt.show()
