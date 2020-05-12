@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
-from superpixel import get_coordinates, return_superpixels
 import math
 import networkx as nx
+from superpixel import get_coordinates
 import pydicom
+from graphcut import cut
 
 def show(pixel_array):
     """
@@ -115,6 +116,10 @@ def test3(graph):
     print("The second smallest eignvalue: {0}\nEignvector: {1}".format(result[0][1], result[1][:, 1]))
 
 def test4(center=None, window=None):
+    """
+    Windoe Center Level for Lung = -500
+    Window Width for Lung = 1500
+    """
     dataset = pydicom.dcmread('./outputs/000075.dcm')
     pixel_array = np.copy(dataset.pixel_array)
     if dataset.RescaleType == 'HU': #O que fazer quando não tem Rescale
@@ -125,21 +130,74 @@ def test4(center=None, window=None):
         condition2 = pixel_array > (c- 0.5 + (w - 1)/2)
         pixel_array = np.piecewise(pixel_array, [condition1, condition2], [0,255, lambda pixel_array: ((pixel_array - (c - 0.5))/(w-1)+0.5) * (255 - 0)]).astype(np.uint8)
     
-    #pixel_array = cv2.GaussianBlur(pixel_array, (5,5), 0.8)
-    
+    #spixel_array = cv2.GaussianBlur(pixel_array, (5,5), 0.4)
+
+    pixel_array[pixel_array > 180]= 255
     #show(pixel_array)
-    #pixel_array[pixel_array > 30]= 255
     #retval = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
     #pixel_array = cv2.morphologyEx(pixel_array, cv2.MORPH_CLOSE,retval)
+    '''Mais apropriado para imagens binárias'''
     #superpixels = cv2.ximgproc.createSuperpixelLSC(pixel_array, region_size=40)
+    '''Mais apropriado para imagens na janela do pulmão'''
     superpixels = cv2.ximgproc.createSuperpixelSEEDS(pixel_array.shape[0], pixel_array.shape[1], image_channels=1, num_superpixels=250, num_levels=20)
-    superpixels.iterate(pixel_array, 20)
+    superpixels.iterate(pixel_array, 15)
     masks = superpixels.getLabelContourMask()
-    pixel_array[masks == 255] = 255
+    #pixel_array[masks == 255] = 200
     labels = superpixels.getLabels()
     number_spixels = superpixels.getNumberOfSuperpixels()
-
+    print("Número de superpixels criados: {}".format(number_spixels))
+    #show(pixel_array)
+    coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=number_spixels)
+    spixels = dict()
+    for key in coordinates:
+        mean_r = int(np.mean(coordinates[key][0]))
+        mean_c = int(np.mean(coordinates[key][1]))
+        centroid = (mean_r, mean_c)
+        color_mean = np.mean(pixel_array[coordinates[key]])
+        spixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
+        cv2.putText(pixel_array,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.3,123)
     show(pixel_array)
+    g = nx.Graph()
+    for key in spixels.keys():
+        g.add_node(key, info=spixels[key], color='red')
+
+    colors = list()
+    distances = list()
+    for i in g.nodes:
+        colors.append(g.nodes[i]['info']['color'])
+        for j in g[i]:
+            d1 = g.nodes[i]['info']['centroid']
+            d2 = g.nodes[j]['info']['centroid']
+            distances.append(math.sqrt((((d1[0]-d2[0])**2)+((d1[1]-d2[1])**2))))
+    aux = [((color - np.mean(colors))**2) for color in colors]
+    deviation_colors = math.sqrt(sum(aux)/len(aux)) if sum(aux) != 0 else 0.01
+    print(deviation_colors)
+    aux = [((dist - np.mean(distances))**2) for dist in distances]
+    deviation_distances = math.sqrt(sum(aux)/len(aux)) if sum(aux) != 0 else 0.01
+    print(deviation_distances)
+    for i in adjacency:
+        for j in adjacency[i]:
+            g.add_edge(i, j)
+            color1 = g.nodes[i]['info']['color']
+            color2 = g.nodes[j]['info']['color']
+            mean = (color1 + color2)/2
+            soma = ((color1 - mean)**2) + ((color2 - mean)**2)
+            p1 = math.sqrt((color1 - color2) ** 2)
+            p2 = p1 / (deviation_colors**2)
+            d1 = g.nodes[i]['info']['centroid']
+            d2 = g.nodes[j]['info']['centroid']
+            p3 = (math.sqrt((((d1[0]-d2[0])**2)+((d1[1]-d2[1])**2)))) 
+            g[i][j]['weight'] =  math.exp(-(p2)) * math.exp(-p3 / (deviation_distances ** 2)) #math.exp(-(abs(color1 - color2) * abs(color1 - color2))/(2*((math.sqrt(soma/2))**2)))
+
+    print(cut(g))
+    nx.draw(g, with_labels=True, font_weight='bold')
+    plt.show()
+
+def test5():
+    laplacian_matrix = np.array([[5,-4,0,0,1], [-4,6,-1,-1,0], [0,-1,2,-1,0], [0,-1,-1,6,-4], [-1, 0, 0, -4, 5]])
+    eign = np.linalg.eigh(laplacian_matrix)
+    norm = np.linalg.norm(eign[0])
+    print(eign[1][:,1])
 
 if __name__ == "__main__":
     test4(-500, 1500)
