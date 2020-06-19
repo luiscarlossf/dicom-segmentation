@@ -7,7 +7,21 @@ def distance(x1, x2):
         return math.sqrt(((x1[0] - x2[0])**2) + ((x1[1]-x2[1])**2))
     return math.sqrt((x1 - x2)**2)
 
-def similarity_distance(i1, i2, d1, d2, di, dd, r):
+def similarity_distance(i1, i2, d1, d2, di=51, dd=102.4, r=2):
+    """
+    Calcula a similaridade entre dois pontos, levando em conta a 
+    intensidade e a distância.
+
+    @param i1: float - nível de intensidade do primeiro ponto.
+    @param i2: float - nível de intensidade do segundo ponto.
+    @param d1: float - localização do primeiro ponto.
+    @param d2: float - localização do segundo ponto.
+    @param di: float - desvio padrão das distâncias, 10% do valor máximo do conjunto.
+    @param dd: float - desvio padrão das distâncias, 10% do valor máximo do conjunto.
+    @param r: int - limite de proximidade
+
+    @return similarity:
+    """
     intensity = distance(i1, i2)
     distances = distance(d1, d2)
     if distances < r:
@@ -60,7 +74,7 @@ if __name__ == "__main__":
         color2 = g.nodes[j]['info']['color']
         d1 = g.nodes[i]['info']['dist']
         d2 = g.nodes[j]['info']['dist']
-        g[i][j]['weight'] =  similarity_distance(color1, color2, d1, d2, 51, 102.4, 2)
+        g[i][j]['weight'] =  similarity_distance(color1, color2, d1, d2, 25.5, 102.4, 2)
     laplacian = nx.laplacian_matrix(g).toarray()
     eign = np.linalg.eigh(laplacian)
     print(eign)
