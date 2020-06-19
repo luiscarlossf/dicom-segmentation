@@ -160,98 +160,6 @@ def get_coordinates(labeled_image, masks, length):
                 
     return coordinates , adjacency
 
-class Group:
-    def __init__(self, center):
-        self.x = center[0]
-        self.y = center[1]
-        self.samplesx = list()
-        self.samplesy = list()
-    
-    def recalcula(self):
-        anterior = (self.x, self.y)
-        self.x = sum(self.samplesx)/len(self.samplesx)
-        self.y = sum(self.samplesy)/len(self.samplesy)
-        self.samplesx = list()
-        self.samplesy = list()
-        return anterior != (self.x, self.y)
-    
-    def set_sample(self, sample):
-        self.samplesx.append(sample['x'])
-        self.samplesx.append(sample['y'])
-    
-    def __repr__(self):
-        return "Group {0}\n center: {1}   samples: {2}\n".format(self, (self.x, self.y), [self.samplesx, self.samplesy])
-    
-def get_superpixel(image, region_size, smooth, num_iteration=10, compactness=0.075):
-    start = time.time()
-    image_ = np.copy(image)
-    s = cv2.ximgproc.createSuperpixelLSC(image, region_size, compactness)
-    print("Foram gerados {0} superpixels.".format(s.getNumberOfSuperpixels))
-    s.iterate()
-    s.enforceLabelConnectivity(10)
-    seconds = time.time() - start 
-    print("Levou {0} segundos para gerar superpixels".format(seconds))
-
-    labels = s.getLabels()
-    start = time.time()
-    coordinates = dict()
-    for i in np.arange(512):
-        for j in np.arange(512):
-            try:
-                coordinates[labels[i, j]][0].append(i)
-                coordinates[labels[i, j]][1].append(j)
-            except KeyError:
-                coordinates[labels[i, j]] = [list(), list()]
-    seconds = time.time() - start        
-    print("Levou {0} segundos para retornar os labels".format(seconds))
-    print("Média da cor do superpixel é {0} ".format(np.mean(image_[coordinates[i]])))
-    
-    """
-    props = regionprops(labels)
-    for i in props[1100]['coords']:
-        image_[i[1], i[0]]=255
-    print("{0} labels retornados.".format(len(props)))
-    masks = s.getLabelContourMask()
-    image_[masks == 255] = 255
-    show(image_)
-
-    image_ = np.copy(image)
-    s_slic = cv2.ximgproc.createSuperpixelSLIC(image, cv2.ximgproc.SLIC, region_size, smooth)
-    #s_slic.enforceLabelConnectivity()
-    s_slic.iterate(num_iteration)
-    masks = s_slic.getLabelContourMask()
-    image_[masks == 255] = 255
-    cv2.imwrite("./outputs/slic-{0}-{1}-{2}.png".format(region_size, smooth, num_iteration), image_)
-
-    image_ = np.copy(image)
-    s_slic = cv2.ximgproc.createSuperpixelSLIC(image, cv2.ximgproc.SLICO, region_size, smooth)
-    s_slic.iterate(num_iteration)
-    masks = s_slic.getLabelContourMask()
-    image_[masks == 255] = 255
-    cv2.imwrite("./outputs/slico-{0}-{1}-{2}.png".format(region_size, smooth, num_iteration), image_)
-
-    image_ = np.copy(image)
-    s_slic = cv2.ximgproc.createSuperpixelSLIC(image, cv2.ximgproc.MSLIC, region_size, smooth)
-    s_slic.iterate(num_iteration)
-    masks = s_slic.getLabelContourMask()
-    image_[masks == 255] = 255
-    cv2.imwrite("./outputs/mslic-{0}-{1}-{2}.png".format(region_size, smooth, num_iteration), image_)
-
-    image_ = np.copy(image)
-    s_slic = cv2.ximgproc.createSuperpixelLSC(image, region_size)
-    s_slic.iterate()
-    masks = s_slic.getLabelContourMask()
-    image_[masks == 255] = 255
-    cv2.imwrite("./outputs/lsc-{0}.png".format(region_size), image_)
-
-    image_ = np.copy(image)
-    s_slic = cv2.ximgproc.createSuperpixelSEEDS(image.shape[0], image.shape[1], 1, 10000, 2)
-    s_slic.iterate(image, 20)
-    masks = s_slic.getLabelContourMask()
-    image_[masks == 255] = 255
-    cv2.imwrite("./outputs/seeds-{0}-{1}-{2}-{3}-{4}.png".format(image.shape[0], image.shape[1], 1, 10000, 2), image_)
-    """
-
 def dice():
     k = 1
     seg = np.zeros((100,100), dtype='int')
@@ -263,19 +171,6 @@ def dice():
     dice = np.sum(seg[gt==k]) * 2.0 / (np.sum(seg) + np.sum(gt))
 
     print('Dice similarity score is {}'.format(dice))
- 
-def kmeans(samples, k):
-    groups = [ Group(choices(samples, k=k)) for i in range(k)]
-    recalcula = True
-    while recalcula:
-        recalcula = True
-        for sample in samples:
-            values = [(((sample['x'] - group.x) + (sample['y'] - group.y))) ** 2 for group in groups]
-            minimo = min(values)
-            groups[values.index(minimo)].set_sample(sample)
-        for group in groups:
-            recalcula = recalcula and group.recalcula()
-    print(groups)
 
 def return_superpixels(image, info=False):
     """
@@ -309,7 +204,7 @@ def return_superpixels(image, info=False):
         mean_r = int(np.mean(coordinates[key][0]))
         mean_c = int(np.mean(coordinates[key][1]))
         centroid = (mean_r, mean_c)
-        color_mean = np.mean(image_[coordinates[key]])
+        color_mean = round(np.mean(image_[tuple(coordinates[key])]), 3)
         if info:
             cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.3,123)
             cv2.imwrite("./outputs/saida-superpixels.png", image_)
@@ -319,14 +214,6 @@ def return_superpixels(image, info=False):
         arquivo.close()
     #cv2.imwrite("./outputs/saida-seg.png", image_)
     return spixels, adjacency
-
-    
-
-
-
-
-
-
 
 #############################################
 """
