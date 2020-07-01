@@ -131,18 +131,56 @@ def test4(center=None, window=None):
         pixel_array = np.piecewise(pixel_array, [condition1, condition2], [0,255, lambda pixel_array: ((pixel_array - (c - 0.5))/(w-1)+0.5) * (255 - 0)]).astype(np.uint8)
     
     #spixel_array = cv2.GaussianBlur(pixel_array, (5,5), 0.4)
-
+    show(pixel_array)
     pixel_array[pixel_array > 180]= 255
-    #show(pixel_array)
+    show(pixel_array)
     #retval = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
     #pixel_array = cv2.morphologyEx(pixel_array, cv2.MORPH_CLOSE,retval)
+    #p0 = np.array([[int(np.binary_repr(pixel_array[i,j], 8)[0]) * 255 for j in range(0, pixel_array.shape[1])] for i in range(0, pixel_array.shape[0])])
+    p1 = np.array([[int(np.binary_repr(pixel_array[i,j], 8)[1]) * 255 for j in range(0, pixel_array.shape[1])] for i in range(0, pixel_array.shape[0])])
+    p2 = np.array([[int(np.binary_repr(pixel_array[i,j], 8)[2]) * 255 for j in range(0, pixel_array.shape[1])] for i in range(0, pixel_array.shape[0])])
+    p3 = np.array([[int(np.binary_repr(pixel_array[i,j], 8)[3]) * 255 for j in range(0, pixel_array.shape[1])] for i in range(0, pixel_array.shape[0])])
+    p4 = np.array([[int(np.binary_repr(pixel_array[i,j], 8)[4]) * 255 for j in range(0, pixel_array.shape[1])] for i in range(0, pixel_array.shape[0])])
+    p5 = np.array([[int(np.binary_repr(pixel_array[i,j], 8)[5]) * 255 for j in range(0, pixel_array.shape[1])] for i in range(0, pixel_array.shape[0])])
+    p6 = np.array([[int(np.binary_repr(pixel_array[i,j], 8)[6]) * 255 for j in range(0, pixel_array.shape[1])] for i in range(0, pixel_array.shape[0])])
+    p7 = np.array([[int(np.binary_repr(pixel_array[i,j], 8)[7]) * 255 for j in range(0, pixel_array.shape[1])] for i in range(0, pixel_array.shape[0])])
+
+    pixel_array = np.copy( p1 * p2 * p3 * p4 * p5 * p6 * p7).astype(np.uint8)
+    show(pixel_array)
+
+    #find all your connected components (white blobs in your image)
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(pixel_array, connectivity=8)
+    #connectedComponentswithStats yields every seperated component with information on each of them, such as size
+    #the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
+    sizes = stats[1:, -1]; nb_components = nb_components - 1
+
+    # minimum size of particles we want to keep (number of pixels)
+    #here, it's a fixed value, but you can set it as you want, eg the mean of the sizes or whatever
+    min_size = 1000
+
+    #your answer image
+    img2 = np.zeros((output.shape))
+    #for every component in the image, you keep it only if it's above min_size
+    for i in range(0, nb_components):
+        if sizes[i] >= min_size:
+            img2[output == i + 1] = 255
+    pixel_array = img2.astype(np.uint8)
+    
+
+    retval = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+    pixel_array = cv2.morphologyEx(pixel_array, cv2.MORPH_CLOSE, retval)
+    show(pixel_array)
+
+    
+
+    
     '''Mais apropriado para imagens binárias'''
     #superpixels = cv2.ximgproc.createSuperpixelLSC(pixel_array, region_size=40)
     '''Mais apropriado para imagens na janela do pulmão'''
-    superpixels = cv2.ximgproc.createSuperpixelSEEDS(pixel_array.shape[0], pixel_array.shape[1], image_channels=1, num_superpixels=250, num_levels=20)
+    superpixels = cv2.ximgproc.createSuperpixelSEEDS(pixel_array.shape[0], pixel_array.shape[1], image_channels=1, num_superpixels=350, num_levels=20)
     superpixels.iterate(pixel_array, 15)
     masks = superpixels.getLabelContourMask()
-    #pixel_array[masks == 255] = 200
+    pixel_array[masks == 255] = 200
     labels = superpixels.getLabels()
     number_spixels = superpixels.getNumberOfSuperpixels()
     print("Número de superpixels criados: {}".format(number_spixels))
@@ -153,10 +191,11 @@ def test4(center=None, window=None):
         mean_r = int(np.mean(coordinates[key][0]))
         mean_c = int(np.mean(coordinates[key][1]))
         centroid = (mean_r, mean_c)
-        color_mean = np.mean(pixel_array[coordinates[key]])
+        color_mean = np.mean(pixel_array[tuple(coordinates[key])])
         spixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
         cv2.putText(pixel_array,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.3,123)
     show(pixel_array)
+    """
     g = nx.Graph()
     for key in spixels.keys():
         g.add_node(key, info=spixels[key], color='red')
@@ -192,6 +231,7 @@ def test4(center=None, window=None):
     print(cut(g))
     nx.draw(g, with_labels=True, font_weight='bold')
     plt.show()
+    """
 
 def test5():
     laplacian_matrix = np.array([[5,-4,0,0,1], [-4,6,-1,-1,0], [0,-1,2,-1,0], [0,-1,-1,6,-4], [-1, 0, 0, -4, 5]])
