@@ -48,8 +48,7 @@ D = np.diag(A.sum(axis=1))
 def graphcut_kmeans(graph, m, k, info=False):
     # graph laplacian
     L = nx.normalized_laplacian_matrix(graph).toarray()#D-A
-
-    print(L[:3, : 3])
+    
     # eigenvalues and eigenvectors
     vals, vecs = np.linalg.eigh(L)
 
