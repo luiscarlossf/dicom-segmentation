@@ -172,6 +172,80 @@ def dice():
 
     print('Dice similarity score is {}'.format(dice))
 
+def get_image_lut(dataset, center=-500, window=1500):
+    """
+    Retorna a image com os valores LUT.
+
+    @param dataset: FileDataset com as metadados da TC.
+    @param window: float da Window Center Level, por padrão a janela para o pulmão.
+    @param level: float da Window Width, por padrão a largura da janela para o pulmão.
+
+    @return new_image: numpy array com os valores LUT dos pixels da imagem de entrada.
+    """
+    new_image = np.copy(dataset.pixel_array)
+    if dataset.RescaleType == 'HU': #O que fazer quando não tem Rescale
+        c = center if center else dataset.WindowCenter #center level
+        w = window if window else dataset.WindowWidth #window width
+        new_image = int(dataset.RescaleSlope) * new_image + int(dataset.RescaleIntercept)
+        condition1 = new_image <= (c- 0.5 - (w - 1)/ 2)
+        condition2 = new_image > (c- 0.5 + (w - 1)/2)
+        new_image = np.piecewise(new_image, [condition1, condition2], [0,255, lambda new_image: ((new_image - (c - 0.5))/(w-1)+0.5) * (255 - 0)]).astype(np.uint8)
+    else:
+        #PRECISA SER IMPLEMENTADO A PARTE DE QUANDO NÃO TEM RESCALE.
+        pass
+    return new_image
+
+def pre_process(image):
+    """
+    Aplica filtros e transformações na imagem de entrada para 
+    ajudar na segementação.
+
+    @param image: numpy array com os pixels da imagem a ser pré-processada.
+
+    @return new_image: numpy array da image de entrada depois de aplicada as transformações.
+    """
+    
+    new_image = np.copy(image)
+    #Threshold
+    new_image[new_image > 180]= 255
+    
+    #Fatiamento de pixels
+    p1 = np.array([[int(np.binary_repr(new_image[i,j], 8)[1]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p2 = np.array([[int(np.binary_repr(new_image[i,j], 8)[2]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p3 = np.array([[int(np.binary_repr(new_image[i,j], 8)[3]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p4 = np.array([[int(np.binary_repr(new_image[i,j], 8)[4]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p5 = np.array([[int(np.binary_repr(new_image[i,j], 8)[5]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p6 = np.array([[int(np.binary_repr(new_image[i,j], 8)[6]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p7 = np.array([[int(np.binary_repr(new_image[i,j], 8)[7]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+
+    new_image = np.copy( p1 * p2 * p3 * p4 * p5 * p6 * p7).astype(np.uint8)
+    
+
+    #Encontra elementos conectados na imagem.
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(new_image, connectivity=8)
+    #connectedComponentswithStats yields every seperated component with information on each of them, such as size
+    #the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
+    sizes = stats[1:, -1]; nb_components = nb_components - 1
+
+    # minimum size of particles we want to keep (number of pixels)
+    #here, it's a fixed value, but you can set it as you want, eg the mean of the sizes or whatever
+    min_size = 1000
+
+    #your answer image
+    img2 = np.zeros((output.shape))
+    #for every component in the image, you keep it only if it's above min_size
+    for i in range(0, nb_components):
+        if sizes[i] >= min_size:
+            img2[output == i + 1] = 255
+    new_image = img2.astype(np.uint8)
+    
+    #Fechamento
+    retval = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+    new_image = cv2.morphologyEx(new_image, cv2.MORPH_CLOSE, retval)
+
+    return new_image
+
+
 def return_superpixels(image, info=False):
     """
     Retorna uma tupla com os superpixels da imagem e suas adjacências.
@@ -183,17 +257,18 @@ def return_superpixels(image, info=False):
         chaves do dicionário é equivalente ao número de superpixels gerados.
     @return adjacency: dict() - dicionário de adjacência dos superpixels.
     """
-    p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
-    image_ = np.copy(p).astype(np.uint8)
-    retval = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-    s1 = cv2.morphologyEx(image_, cv2.MORPH_CLOSE,retval)
-    retval = cv2.getStructuringElement(cv2.MORPH_CROSS, (5,5))
-    image_ = cv2.morphologyEx(s1, cv2.MORPH_OPEN, retval)
-    #image_ = np.copy(image)
-    superpixels = cv2.ximgproc.createSuperpixelLSC(image_, 40)
-    superpixels.iterate(20)
+    image_ = np.copy(image)
+    #superpixels = cv2.ximgproc.createSuperpixelLSC(image_, 40)
+    #superpixels.iterate(20)
+    #masks = superpixels.getLabelContourMask()
+    #image_[masks == 255] = 123
+    #labels = superpixels.getLabels()
+    #number_spixels = superpixels.getNumberOfSuperpixels()
+    '''Mais apropriado para imagens na janela do pulmão'''
+    superpixels = cv2.ximgproc.createSuperpixelSEEDS(image_.shape[0], image_.shape[1], image_channels=1, num_superpixels=200, num_levels=5)
+    superpixels.iterate(image_, 30)
     masks = superpixels.getLabelContourMask()
-    image_[masks == 255] = 123
+    image_[masks == 255] = 200
     labels = superpixels.getLabels()
     number_spixels = superpixels.getNumberOfSuperpixels()
     coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=number_spixels)
@@ -206,7 +281,7 @@ def return_superpixels(image, info=False):
         centroid = (mean_r, mean_c)
         color_mean = round(np.mean(image_[tuple(coordinates[key])]), 3)
         if info:
-            cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.3,123)
+            cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.3,200)
             cv2.imwrite("./outputs/saida-superpixels.png", image_)
             arquivo.write("Superpixel {0}\n\tCentroid: {1}\n\tColor mean: {2}\n".format(key,centroid, color_mean))
         spixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
