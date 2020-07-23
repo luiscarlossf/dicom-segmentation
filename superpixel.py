@@ -69,14 +69,16 @@ def get_datamark(datasets, roi):
     :param roi: str()
     :return datasets: list()
     """
+    if (len(datasets) < 2):
+        raise ValueError("O dataset não contém nenhuma marcação.")
     marking = dicomparser.DicomParser(datasets[0])
     structures = marking.GetStructures()
     roi_number = None
     for i in structures:
-        if roi in structures[i]['name']:
-            roi_number = structures[i]['id']
+        if roi.lower() in structures[i]['name'].lower(): #Verifica se possui a marcação da região de interesse.
+            roi_number = structures[i]['id'] 
     if roi_number == None:
-        raise NameError(roi + " não está entre as estruturas marcadas")
+        raise NameError(roi + " não está entre as estruturas marcadas", structures)
     marked_slices = marking.GetStructureCoordinates(roi_number)
 
     return [ i for i in datasets[1:] if str(round(i.ImagePositionPatient[2], 2)) + '0' in marked_slices ]
@@ -195,6 +197,13 @@ def get_image_lut(dataset, center=-500, window=1500):
         pass
     return new_image
 
+def fatia(entrada):
+    v = np.binary_repr(entrada, 8)
+    multi = 255
+    for i in range(1,8):
+        multi *= int(v[i])
+    return multi
+
 def pre_process(image):
     """
     Aplica filtros e transformações na imagem de entrada para 
@@ -210,15 +219,31 @@ def pre_process(image):
     new_image[new_image > 180]= 255
     
     #Fatiamento de pixels
-    p1 = np.array([[int(np.binary_repr(new_image[i,j], 8)[1]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p2 = np.array([[int(np.binary_repr(new_image[i,j], 8)[2]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p3 = np.array([[int(np.binary_repr(new_image[i,j], 8)[3]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p4 = np.array([[int(np.binary_repr(new_image[i,j], 8)[4]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p5 = np.array([[int(np.binary_repr(new_image[i,j], 8)[5]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p6 = np.array([[int(np.binary_repr(new_image[i,j], 8)[6]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p7 = np.array([[int(np.binary_repr(new_image[i,j], 8)[7]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
 
-    new_image = np.copy( p1 * p2 * p3 * p4 * p5 * p6 * p7).astype(np.uint8)
+    func7 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[7]) * 255))
+    func6 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[6]) * 255))
+    func5 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[5]) * 255))
+    func4 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[4]) * 255))
+    func3 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[3]) * 255))
+    func2 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[2]) * 255))
+    func1 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[1]) * 255))
+    vfunc = np.vectorize(fatia)
+    
+    """
+    for x in np.nditer(new_image):
+        binary = np.binary_repr(x,8)
+        multi = 1
+        for i in binary:
+            
+    p1 = func1(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[1]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p2 = func2(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[2]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p3 = func3(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[3]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p4 = func4(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[4]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p5 = func5(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[5]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p6 = func6(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[6]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    p7 = func7(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[7]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
+    """
+    new_image = vfunc(new_image).astype(np.uint8) #np.copy( p1 * p2 * p3 * p4 * p5 * p6 * p7).astype(np.uint8)
     
 
     #Encontra elementos conectados na imagem.
@@ -235,8 +260,7 @@ def pre_process(image):
     img2 = np.zeros((output.shape))
     #for every component in the image, you keep it only if it's above min_size
     for i in range(0, nb_components):
-        if sizes[i] >= min_size:
-            img2[output == i + 1] = 255
+        img2[output == i + 1] = 255
     new_image = img2.astype(np.uint8)
     
     #Fechamento
@@ -245,6 +269,22 @@ def pre_process(image):
 
     return new_image
 
+def get_superpixels(image):
+    image_ = np.copy(image)
+    superpixels = cv2.ximgproc.createSuperpixelLSC(image_, 40)
+    superpixels.iterate(20)
+    masks = superpixels.getLabelContourMask()
+    image_[masks == 255] = 123
+    labels = superpixels.getLabels()
+    number_spixels = superpixels.getNumberOfSuperpixels()
+    '''Mais apropriado para imagens na janela do pulmão'''
+    #superpixels = cv2.ximgproc.createSuperpixelSEEDS(image_.shape[0], image_.shape[1], image_channels=1, num_superpixels=200, num_levels=5)
+    #superpixels.iterate(image_, 30)
+    #masks = superpixels.getLabelContourMask()
+    #image_[masks == 255] = 200
+    #labels = superpixels.getLabels()
+    #number_spixels = superpixels.getNumberOfSuperpixels()
+    return image_
 
 def return_superpixels(image, info=False):
     """
@@ -259,14 +299,12 @@ def return_superpixels(image, info=False):
     """
     image_ = np.copy(image)
     #superpixels = cv2.ximgproc.createSuperpixelLSC(image_, 40)
-    #superpixels.iterate(20)
-    #masks = superpixels.getLabelContourMask()
-    #image_[masks == 255] = 123
-    #labels = superpixels.getLabels()
-    #number_spixels = superpixels.getNumberOfSuperpixels()
+    #superpixels.iterate(30)
     '''Mais apropriado para imagens na janela do pulmão'''
-    superpixels = cv2.ximgproc.createSuperpixelSEEDS(image_.shape[0], image_.shape[1], image_channels=1, num_superpixels=200, num_levels=5)
+    superpixels = cv2.ximgproc.createSuperpixelSEEDS(image_.shape[0], image_.shape[1], image_channels=1, num_superpixels=2000, num_levels=10)
     superpixels.iterate(image_, 30)
+    #superpixels = cv2.ximgproc.createSuperpixelSLIC(image_, algorithm=cv2.ximgproc.MSLIC, region_size=15, ruler=50.0)
+    #superpixels.iterate(30)
     masks = superpixels.getLabelContourMask()
     image_[masks == 255] = 200
     labels = superpixels.getLabels()
