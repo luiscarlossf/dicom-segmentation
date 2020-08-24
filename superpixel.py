@@ -29,7 +29,8 @@ def load_datasets(path):
 
     :param path: str indicando o diretório de origem dos
                  dos arquivos que se deseja carregar
-    :return volume: lista com os arquivos dicom
+    :return volume: lista com os arquivos dicom, primeiro elemento da lista 
+                 são as marcações das rois.
     """
     volume = list()
     slice_locations = dict()
@@ -100,20 +101,27 @@ def get_mark(dataset, position, spacing, roi):
     """
     marking = dicomparser.DicomParser(dataset)
     structures = marking.GetStructures()
-    roi_number = None
+    roi_numbers = list()
     for i in structures:
         if roi in structures[i]['name']:
-            roi_number = structures[i]['id']
-    if roi_number == None:
+            roi_numbers.append(structures[i]['id'])
+    if roi_numbers == None:
         raise NameError(roi + " não está entre as estruturas marcadas")
     
     coordinates = list()
-    for mark in marking.GetStructureCoordinates(roi_number)[str(round(position[2], 2)) + '0']:
-        contour = np.array(mark['data'])
-        rows = ((contour[:, 1] - position[1])/spacing[1]).astype(int)
-        columns = ((contour[:, 0] - position[0])/spacing[0]).astype(int)
-        coordinates.append([rows, columns])
-    
+    for roi_number in roi_numbers:
+        try:
+            for mark in marking.GetStructureCoordinates(roi_number)[str(round(position[2], 2)) + '0']:
+                contours = np.array(mark['data'])
+                lista = list()
+                for c in contours:
+                    lista.append(((c[0] - position[0])/spacing[0], (c[1] - position[1])/spacing[1]))
+                #rows = ((contour[:, 1] - position[1])/spacing[1]).astype(int)
+                #columns = ((contour[:, 0] - position[0])/spacing[0]).astype(int)
+                coordinates.append(lista)
+        except:
+            continue
+        
     return coordinates
 
 def get_coordinates(labeled_image, masks, length):
@@ -184,6 +192,9 @@ def get_image_lut(dataset, center=-500, window=1500):
 
     @return new_image: numpy array com os valores LUT dos pixels da imagem de entrada.
     """
+    ds = dicomparser.DicomParser(dataset)
+    new_image = ds.GetImage(window=window, level=center)
+    """
     new_image = np.copy(dataset.pixel_array)
     if dataset.RescaleType == 'HU': #O que fazer quando não tem Rescale
         c = center if center else dataset.WindowCenter #center level
@@ -194,8 +205,9 @@ def get_image_lut(dataset, center=-500, window=1500):
         new_image = np.piecewise(new_image, [condition1, condition2], [0,255, lambda new_image: ((new_image - (c - 0.5))/(w-1)+0.5) * (255 - 0)]).astype(np.uint8)
     else:
         #PRECISA SER IMPLEMENTADO A PARTE DE QUANDO NÃO TEM RESCALE.
-        pass
-    return new_image
+        pass"""
+    
+    return np.array(new_image)
 
 def fatia(entrada):
     v = np.binary_repr(entrada, 8)
@@ -203,8 +215,28 @@ def fatia(entrada):
     for i in range(1,8):
         multi *= int(v[i])
     return multi
+def remove_components(image, min_size=1000):
 
-def pre_process(image):
+    #Encontra elementos conectados na imagem.
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(image, connectivity=8)
+    #connectedComponentswithStats yields every seperated component with information on each of them, such as size
+    #the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
+    sizes = stats[1:, -1]; nb_components = nb_components - 1
+
+    # minimum size of particles we want to keep (number of pixels)
+    #here, it's a fixed value, but you can set it as you want, eg the mean of the sizes or whatever
+
+    #your answer image
+    img2 = np.zeros((output.shape))
+    #for every component in the image, you keep it only if it's above min_size
+    for i in range(0, nb_components):
+        if sizes[i] >= min_size:
+            img2[output == i + 1] = 255
+    new_image = img2.astype(np.uint8)
+    
+    return new_image
+
+def pre_process(image, info=False):
     """
     Aplica filtros e transformações na imagem de entrada para 
     ajudar na segementação.
@@ -219,33 +251,24 @@ def pre_process(image):
     new_image[new_image > 180]= 255
     
     #Fatiamento de pixels
+    if info:
+        start = time.time()
+    with np.nditer(new_image, op_flags=['readwrite']) as it:
+        for x in it:
+            v = format(x,'b').zfill(8)
+            if '0' in v:
+                x[...] = 0
+            else:
+                x[...] = 255
+    #vfunc = np.vectorize(fatia)
 
-    func7 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[7]) * 255))
-    func6 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[6]) * 255))
-    func5 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[5]) * 255))
-    func4 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[4]) * 255))
-    func3 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[3]) * 255))
-    func2 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[2]) * 255))
-    func1 = np.vectorize(lambda t: (int(np.binary_repr(t, 8)[1]) * 255))
-    vfunc = np.vectorize(fatia)
+    #new_image = vfunc(new_image).astype(np.uint8) #np.copy( p1 * p2 * p3 * p4 * p5 * p6 * p7).astype(np.uint8)
+    if info:
+        end = time.time() - start
+        print("{0} segundos para fatiar a imagem.".format(end))
     
-    """
-    for x in np.nditer(new_image):
-        binary = np.binary_repr(x,8)
-        multi = 1
-        for i in binary:
-            
-    p1 = func1(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[1]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p2 = func2(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[2]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p3 = func3(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[3]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p4 = func4(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[4]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p5 = func5(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[5]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p6 = func6(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[6]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    p7 = func7(new_image)#np.array([[int(np.binary_repr(new_image[i,j], 8)[7]) * 255 for j in range(0, new_image.shape[1])] for i in range(0, new_image.shape[0])])
-    """
-    new_image = vfunc(new_image).astype(np.uint8) #np.copy( p1 * p2 * p3 * p4 * p5 * p6 * p7).astype(np.uint8)
-    
-
+    if info:
+        start = time.time()
     #Encontra elementos conectados na imagem.
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(new_image, connectivity=8)
     #connectedComponentswithStats yields every seperated component with information on each of them, such as size
@@ -260,13 +283,17 @@ def pre_process(image):
     img2 = np.zeros((output.shape))
     #for every component in the image, you keep it only if it's above min_size
     for i in range(0, nb_components):
-        img2[output == i + 1] = 255
+        if sizes[i] >= min_size:
+            img2[output == i + 1] = 255
     new_image = img2.astype(np.uint8)
     
     #Fechamento
     retval = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
     new_image = cv2.morphologyEx(new_image, cv2.MORPH_CLOSE, retval)
-
+    if info:
+        end = time.time() - start
+        print("{0} segundos para encontrar e remover componentes da imagem".format(end))
+        
     return new_image
 
 def get_superpixels(image):
@@ -297,6 +324,8 @@ def return_superpixels(image, info=False):
         chaves do dicionário é equivalente ao número de superpixels gerados.
     @return adjacency: dict() - dicionário de adjacência dos superpixels.
     """
+    if info:
+        start = time.time()
     image_ = np.copy(image)
     #superpixels = cv2.ximgproc.createSuperpixelLSC(image_, 40)
     #superpixels.iterate(30)
@@ -309,9 +338,19 @@ def return_superpixels(image, info=False):
     image_[masks == 255] = 200
     labels = superpixels.getLabels()
     number_spixels = superpixels.getNumberOfSuperpixels()
+    if info:
+        end = time.time() - start
+        print("{0} segundos para gerar superpixels.".format(end))
+    if info:
+        start = time.time()
     coordinates, adjacency = get_coordinates(labeled_image=labels, masks=masks, length=number_spixels)
     if info:
+        end = time.time() - start
+        print("{0} segundos para setar as coordenadas e adjacências dos superpixels.".format(end))
+    if info:
         arquivo = open("./outputs/superpixels-info.txt","w")
+    if info:
+        start = time.time()
     spixels = dict()
     for key in coordinates:
         mean_r = int(np.mean(coordinates[key][0]))
@@ -319,18 +358,35 @@ def return_superpixels(image, info=False):
         centroid = (mean_r, mean_c)
         color_mean = round(np.mean(image_[tuple(coordinates[key])]), 3)
         if info:
-            cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.3,200)
+        #    cv2.putText(image_,"{0}".format(key), (centroid[1], centroid[0]),  cv2.FONT_HERSHEY_SIMPLEX,0.3,200)
             cv2.imwrite("./outputs/saida-superpixels.png", image_)
-            arquivo.write("Superpixel {0}\n\tCentroid: {1}\n\tColor mean: {2}\n".format(key,centroid, color_mean))
+        #    arquivo.write("Superpixel {0}\n\tCentroid: {1}\n\tColor mean: {2}\n".format(key,centroid, color_mean))
         spixels[key] = {"label": key, "centroid": centroid, "color": color_mean, "coordinates":coordinates[key]}
+    if info:
+        end = time.time() - start
+        print("{0} segundos para setar as informações dos superpixels.".format(end))
     if info:
         arquivo.close()
     #cv2.imwrite("./outputs/saida-seg.png", image_)
     return spixels, adjacency
 
 #############################################
-"""
+
 if __name__ == "__main__":
+    dataset = pydicom.dcmread('./outputs/000091.dcm')
+    image = get_image_lut(dataset)
+    backSub = cv2.createBackgroundSubtractorMOG2()
+    fgmask = backSub.apply(image)
+    otsu_value, new_image = cv2.threshold(image, thresh=180, maxval=255,type=cv2.THRESH_OTSU)
+    image[image > otsu_value] = 255
+    image[image <= otsu_value] = 0
+    show(image)
+    new_image = remove_components(image, min_size=1150)
+    show(new_image)
+    #new_image = pre_process(image, True)
+    #spixels, adjacency = return_superpixels(image, True)
+    #show(new_image)
+"""
     image = cv2.imread("./outputs/lung.png", 0)
     p = np.array([[int(np.binary_repr(image[i,j], 8)[7]) * 255 for j in range(0, image.shape[1])] for i in range(0, image.shape[0])])
 
